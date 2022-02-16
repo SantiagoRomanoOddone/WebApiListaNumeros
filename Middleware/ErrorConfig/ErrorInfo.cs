@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace WebApiListaNumeros.ErrorDetails
+namespace Middleware.ErrorConfig
 {
-    public class ErrorInfo
+    class ErrorInfo
     {
         public ErrorInfo()
         {

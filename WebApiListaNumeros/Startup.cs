@@ -15,8 +15,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebApiListaNumeros.Filters;
-using WebApiListaNumeros.Middleware;
 using WebApiListaNumeros.Services;
 
 namespace WebApiListaNumeros
@@ -33,11 +31,14 @@ namespace WebApiListaNumeros
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //TODO: VER 
-            services.AddScoped<BasicAuthorizationFilter>();
-
-
+            services.AddMemoryCache();
             services.AddControllers();
+            services.AddHttpClient("MockService", c =>
+            {                
+                c.BaseAddress = new Uri("https://be2d9e2a-4c0f-41bb-ab02-b8731ec4654c.mock.pstmn.io?");
+            }              
+            );
+            
 
             #region Authentication
             services.AddAuthentication(option =>
@@ -87,13 +88,17 @@ namespace WebApiListaNumeros
 
             app.UseHttpsRedirection();
 
-            app.UseMiddleware<ExceptionMiddleware>();
-            app.UseRouting();
+            
 
+            app.UseRouting();
           
             app.UseAuthorization();
 
-            app.UseMiddleware<SecurityMiddleware>();
+            app.UseMiddleware<ExceptionMiddleware>();
+
+            app.UseMiddleware<FunctionalityMiddleware>();
+
+            app.UseMiddleware<SecurityDisponibilityMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

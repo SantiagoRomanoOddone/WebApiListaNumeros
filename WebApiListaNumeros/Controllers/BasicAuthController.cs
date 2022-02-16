@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
-using WebApiListaNumeros.Filters;
 using WebApiListaNumeros.Services;
 
 namespace WebApiListaNumeros.Controllers
@@ -24,13 +24,12 @@ namespace WebApiListaNumeros.Controllers
             throw new Exception("test");
         }
 
-        //[ServiceFilter(typeof(BasicAuthorizationFilter))]
 
-        // TODO: probar esto
-        //[Authorize]
+
         [HttpGet("list")]
-        public async Task<IActionResult> GetResult()
+        public async Task<IActionResult> GetResults()
         {
+           
             try
             {
                 var content = "BasicAuth API";
