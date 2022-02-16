@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;//a
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Middlewares.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,14 +18,6 @@ namespace WebApiListaNumeros.Controllers
     [ApiController]
     public class BasicAuthController : ControllerBase
     {
-        [HttpGet]
-        [Route("exception")]
-        public async Task<IActionResult> ThrowException()
-        {
-            throw new Exception("test");
-        }
-
-
 
         [HttpGet("list")]
         public async Task<IActionResult> GetResults()
@@ -32,6 +25,7 @@ namespace WebApiListaNumeros.Controllers
            
             try
             {
+                //throw new KeyNotFoundException("Account not found");
                 var content = "BasicAuth API";
                 return Ok(content);
             }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Middleware.ErrorConfig;
+using Middlewares.Helpers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,39 +14,45 @@ namespace Middlewares
 {
     public class ExceptionMiddleware
     {
+        // Prueba 
         private readonly RequestDelegate _next;
-        private readonly ILogger _logger;
-      
-        // El parámetro loggerFactory es para poder construir un logger y loggear las excepciones en el gestor de excepciones.
-        public ExceptionMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
+
+        public ExceptionMiddleware(RequestDelegate next)
         {
             _next = next;
-            _logger = loggerFactory.CreateLogger<ExceptionMiddleware>();
         }
-        public async Task InvokeAsync(HttpContext httpContext)
+
+        public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                await _next(httpContext);
+                await _next(context);
             }
-            catch (Exception ex)
+            catch (Exception error)
             {
-                _logger.LogError(ex, $"Oooops! Algo salió mal: {ex.Message}");
-                //Este método encapsula el error y crea un response personalizado para informarle al cliente
-                await HandleGlobalExceptionAsync(httpContext, ex);
+                var response = context.Response;
+                response.ContentType = "application/json";
+
+                switch (error)
+                {
+                    case AppException e:
+                        // custom application error
+                        response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        break;
+                    case KeyNotFoundException e:
+                        // not found error
+                        response.StatusCode = (int)HttpStatusCode.NotFound;
+                        break;
+                    default:
+                        // unhandled error
+                        response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        break;
+
+                }
+                 await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = error?.Message }));
+                //var result = JsonSerializer.Serialize(new { message = error?.Message });
+                //await response.WriteAsync(result);
             }
-        }
-        private static Task HandleGlobalExceptionAsync(HttpContext context, Exception exception)
-        {
-            context.Response.ContentType = "application/json";
-            //Se coloca el código de error que se quiera . Este es para mostrar la diferencia -> cod 406
-            context.Response.StatusCode = (int)HttpStatusCode.NotAcceptable;
-            return context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorInfo()
-            {
-                StatusCode = StatusCodes.Status406NotAcceptable, //Custom error
-                Message = $"Algo salió mal. Error!: {exception.Message}",
-                StackTrace = exception.StackTrace
-            }));
-        }
+        }         
     }
 }

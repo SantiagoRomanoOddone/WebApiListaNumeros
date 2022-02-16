@@ -4,6 +4,7 @@ using Middlewares.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -53,6 +54,9 @@ namespace Middlewares
                 }
                 else
                 {
+                    //context.Response.StatusCode = 500;
+                    //return;
+
                     context.Response.StatusCode = 500;
                     await context.Response.WriteAsync
                           ("Something Went Wrong! Error Ocurred");
@@ -88,13 +92,13 @@ namespace Middlewares
                     return;
                 }
             }
-            else
-            {
-                context.Response.StatusCode = 500;
-                await context.Response.WriteAsync
-                      ("Something Went Wrong! Error Ocurred");
-                return;
-            }
+            //else
+            //{
+            //    context.Response.StatusCode = 500;
+            //    await context.Response.WriteAsync
+            //          ("Something Went Wrong! Error Ocurred");
+            //    return;
+            //}
         }
 
     }

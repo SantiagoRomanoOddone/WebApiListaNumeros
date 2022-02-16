@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiListaNumeros", "WebApiListaNumeros\WebApiListaNumeros.csproj", "{095E0BC2-16BB-4A5B-9F70-F26C27583BD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Middlewares", "Middleware\Middlewares.csproj", "{5F81B83A-0C06-4E81-ABCC-F9BD33737616}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Middlewares", "Middleware\Middlewares.csproj", "{5F81B83A-0C06-4E81-ABCC-F9BD33737616}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTesting", "XUnitTesting\XUnitTesting.csproj", "{7E96B346-C510-46DF-A2D0-824B13839008}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{5F81B83A-0C06-4E81-ABCC-F9BD33737616}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F81B83A-0C06-4E81-ABCC-F9BD33737616}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F81B83A-0C06-4E81-ABCC-F9BD33737616}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E96B346-C510-46DF-A2D0-824B13839008}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E96B346-C510-46DF-A2D0-824B13839008}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E96B346-C510-46DF-A2D0-824B13839008}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E96B346-C510-46DF-A2D0-824B13839008}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -32,6 +32,7 @@ namespace WebApiListaNumeros
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMemoryCache();
+            //agregado
             services.AddControllers();
             services.AddHttpClient("MockService", c =>
             {                
