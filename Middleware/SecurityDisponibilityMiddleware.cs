@@ -2,11 +2,13 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Middlewares.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,14 +21,18 @@ namespace Middlewares
         private const string APIKEYNAME = "ApiKey";
         public const string CHACHEKEYNAME = "CacheKey";
         private readonly IMemoryCache _memoryCache;
+        private readonly IConfiguration _configuration;
 
-        public SecurityDisponibilityMiddleware(RequestDelegate next, IMemoryCache memoryCache)
+
+        public SecurityDisponibilityMiddleware(RequestDelegate next, IMemoryCache memoryCache, IConfiguration configuration)
         {
             _next = next;
             _memoryCache = memoryCache;
+            _configuration = configuration;
         }
         public async Task InvokeAsync(HttpContext context)
-        {          
+        {
+            #region Disponibility
             //_memoryCache.Get<Root>(CHACHEKEYNAME);
             var functionalityResponse = context.Items["functionality-response"];
             Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
@@ -57,36 +63,29 @@ namespace Middlewares
                       ("Unauthorized! Only Weekdays from 8 am to 10 pm");
                 return;
             }
+            #endregion
 
-            if (!context.Request.Headers.TryGetValue(APIKEYNAME, out var extractedApiKey))
+            #region Security
+            var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
+            string dataAccess = context.Request.Headers["Authorization"];
+            if (clientTipe == "Basic")
             {
-                string authHeader = context.Request.Headers["Authorization"];
-
-                if (authHeader != null)
+                string auth = dataAccess.Split(new char[] { ' ' })[1];
+                Encoding encoding = Encoding.GetEncoding("UTF-8");
+                var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
+                string username = usernameAndPassword.Split(new char[] { ':' })[0];
+                string password = usernameAndPassword.Split(new char[] { ':' })[1];
+                if (username == "Admin" && password == "Admin123")
                 {
-                    string auth = authHeader.Split(new char[] { ' ' })[1];
-                    Encoding encoding = Encoding.GetEncoding("UTF-8");
-                    var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
-                    string username = usernameAndPassword.Split(new char[] { ':' })[0];
-                    string password = usernameAndPassword.Split(new char[] { ':' })[1];
-                    if (username == "Admin" && password == "Admin123")
-                    {
-                        await _next(context);
-                    }
-                    else
-                    {
-                        context.Response.StatusCode = 401;
-                        return;
-                    }
+                    await _next(context);
                 }
                 else
                 {
                     context.Response.StatusCode = 401;
                     return;
                 }
-
             }
-            else
+            else if (clientTipe == "Bearer")
             {
                 var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
                 var appSettings = context.RequestServices.GetRequiredService<IConfiguration>();
@@ -94,22 +93,46 @@ namespace Middlewares
 
                 if (token != null)
                 {
-
-                    if (!apiKey.Equals(extractedApiKey))
-                    {
-                        context.Response.StatusCode = 401;
-                        await context.Response.WriteAsync
-                              ("Unauthorized client");
-                        return;
-                    }
+                    attachAccountToContext(context, token);
                     await _next(context);
                 }
-                context.Response.StatusCode = 401;
-                await context.Response.WriteAsync
-                      ("Wrong Token");
-                return;
+                else
+                {
+                    return;
+                }
+                void attachAccountToContext(HttpContext context, string token)
+                {
+                    try
+                    {
+                        var tokenHandler = new JwtSecurityTokenHandler();
+                        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                        var issuer = _configuration["Jwt:Issuer"];
+                        var audience = _configuration["Jwt:Audience"];
 
+                        tokenHandler.ValidateToken(token, new TokenValidationParameters
+                        {
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(key),
+                            ValidateIssuer = true,
+                            ValidateAudience = true,
+                            ValidIssuer = issuer,
+                            ValidAudience = audience,
+                            // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+                            ClockSkew = TimeSpan.Zero
+                        }, out SecurityToken validatedToken);
+
+                        var jwtToken = (JwtSecurityToken)validatedToken;
+                        var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
+
+                    }
+                    catch
+                    {
+                        context.Response.WriteAsync("Wrong Token Validation");
+
+                    }
+                }
             }
+            #endregion           
 
         }
     }
