@@ -32,13 +32,21 @@ namespace Middlewares
         }
         public async Task InvokeAsync(HttpContext context)
         {
-            #region Disponibility
             //_memoryCache.Get<Root>(CHACHEKEYNAME);
             var functionalityResponse = context.Items["functionality-response"];
+
+            await DisponibilityCheck(context);
+            await SecurityCheck(context);
+
+            await _next.Invoke(context);
+
+        }
+
+        private async Task<HttpContext> DisponibilityCheck(HttpContext context)
+        {
             Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
-            
             bool available = false;
-            string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0,3);
+            string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);
             TimeSpan now = DateTime.Now.TimeOfDay;
 
             try
@@ -52,21 +60,18 @@ namespace Middlewares
                     available = true;
                 }
             }
-            catch 
+            catch
             {
-                available = false; 
+                available = false;
             }
             if (available == false)
             {
                 throw new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm");
-                //context.Response.StatusCode = 401;
-                //await context.Response.WriteAsync
-                //      ("Unauthorized! Only Weekdays from 8 am to 10 pm");
-                //return;
             }
-            #endregion
-
-            #region Security
+            return context;
+        }
+        private async Task<HttpContext> SecurityCheck(HttpContext context)
+        {
             var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
             string dataAccess = context.Request.Headers["Authorization"];
             if (clientTipe == "Basic")
@@ -78,7 +83,7 @@ namespace Middlewares
                 string password = usernameAndPassword.Split(new char[] { ':' })[1];
                 if (username == "Admin" && password == "Admin123")
                 {
-                    await _next(context);
+                    return context;
                 }
                 else
                 {
@@ -96,11 +101,11 @@ namespace Middlewares
                 if (token != null)
                 {
                     attachAccountToContext(context, token);
-                    await _next(context);
+                    return context;                  
                 }
                 else
                 {
-                    return;
+                    throw new UnauthorizedAccessException("Unauthorized!");
                 }
                 void attachAccountToContext(HttpContext context, string token)
                 {
@@ -125,16 +130,16 @@ namespace Middlewares
 
                         var jwtToken = (JwtSecurityToken)validatedToken;
                         var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
-
                     }
                     catch
                     {
-                        throw new AppException("Wrong Token Validation");                      
+                        throw new AppException("Wrong Token Validation");
                     }
                 }
             }
-            #endregion           
 
+            return context;
         }
+
     }
 }

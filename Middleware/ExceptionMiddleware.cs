@@ -44,9 +44,10 @@ namespace Middlewares
                     case KeyNotFoundException e:
                         // not found error
                         response.StatusCode = (int)HttpStatusCode.NotFound;
-                        break;
+                        break;                 
                     default:
                         // unhandled error
+                        //ArgumentNullException
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         break;
 
