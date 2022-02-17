@@ -25,13 +25,14 @@ namespace WebApiListaNumeros.Controllers
            
             try
             {
-                //throw new KeyNotFoundException("Account not found");
                 var content = "BasicAuth API";
                 return Ok(content);
             }
             catch
             {
-                return BadRequest();
+                throw new AppException("Email or password is incorrect");
+                //return response.StatusCode = (int)HttpStatusCode.BadRequest;
+                //return BadRequest();
             }
         }
 

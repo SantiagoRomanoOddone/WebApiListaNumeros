@@ -15,6 +15,10 @@ namespace Middlewares.Helpers
 
             // a key not found exception that will return a 404 response
             throw new KeyNotFoundException("Account not found");
+
+            throw new UnauthorizedAccessException("Unauthorized!");
+
+            throw new Exception("Something Went Wrong! Error Ocurred");
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Middlewares.Helpers;
 using Middlewares.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -22,7 +23,6 @@ namespace Middlewares
         public const string CHACHEKEYNAME = "CacheKey";
         private readonly IMemoryCache _memoryCache;
         private readonly IConfiguration _configuration;
-
 
         public SecurityDisponibilityMiddleware(RequestDelegate next, IMemoryCache memoryCache, IConfiguration configuration)
         {
@@ -58,10 +58,11 @@ namespace Middlewares
             }
             if (available == false)
             {
-                context.Response.StatusCode = 401;
-                await context.Response.WriteAsync
-                      ("Unauthorized! Only Weekdays from 8 am to 10 pm");
-                return;
+                throw new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm");
+                //context.Response.StatusCode = 401;
+                //await context.Response.WriteAsync
+                //      ("Unauthorized! Only Weekdays from 8 am to 10 pm");
+                //return;
             }
             #endregion
 
@@ -81,8 +82,9 @@ namespace Middlewares
                 }
                 else
                 {
-                    context.Response.StatusCode = 401;
-                    return;
+                    throw new AppException("Email or password is incorrect");
+                    //context.Response.StatusCode = 401;
+                    //return;
                 }
             }
             else if (clientTipe == "Bearer")
@@ -127,8 +129,7 @@ namespace Middlewares
                     }
                     catch
                     {
-                        context.Response.WriteAsync("Wrong Token Validation");
-
+                        throw new AppException("Wrong Token Validation");                      
                     }
                 }
             }

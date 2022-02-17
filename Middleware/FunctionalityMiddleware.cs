@@ -28,8 +28,7 @@ namespace Middlewares
             var path = context.Request.Path;
 
             if (path == "/v1/minipompom/basic/list")
-            {
-                
+            {               
                 var uri1 = new Uri("https://be2d9e2a-4c0f-41bb-ab02-b8731ec4654c.mock.pstmn.io?channel=sucursal&method=GET&endpoint=/v1/minipompom/basic/list");
 
                 var client1 = _clientFactory.CreateClient();
@@ -54,13 +53,14 @@ namespace Middlewares
                 }
                 else
                 {
+                    throw new Exception("Something Went Wrong! Error Ocurred");
                     //context.Response.StatusCode = 500;
                     //return;
 
-                    context.Response.StatusCode = 500;
-                    await context.Response.WriteAsync
-                          ("Something Went Wrong! Error Ocurred");
-                    return;
+                    //context.Response.StatusCode = 500;
+                    //await context.Response.WriteAsync
+                    //      ("Something Went Wrong! Error Ocurred");
+                    //return;
                 }
             }
 
@@ -86,19 +86,14 @@ namespace Middlewares
                 }
                 else
                 {
-                    context.Response.StatusCode = 500;
-                    await context.Response.WriteAsync
-                          ("Something Went Wrong! Error Ocurred");
-                    return;
+                    throw new Exception("Something Went Wrong! Error Ocurred");
                 }
             }
-            //else
-            //{
-            //    context.Response.StatusCode = 500;
-            //    await context.Response.WriteAsync
-            //          ("Something Went Wrong! Error Ocurred");
-            //    return;
-            //}
+
+            else
+            {
+                throw new Exception("Something Went Wrong! Error Ocurred");
+            }
         }
 
     }

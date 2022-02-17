@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Middleware.ErrorConfig;
 using Middlewares.Helpers;
 using Newtonsoft.Json;
 using System;
@@ -14,7 +13,6 @@ namespace Middlewares
 {
     public class ExceptionMiddleware
     {
-        // Prueba 
         private readonly RequestDelegate _next;
 
         public ExceptionMiddleware(RequestDelegate next)
@@ -38,6 +36,10 @@ namespace Middlewares
                     case AppException e:
                         // custom application error
                         response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        break;
+                    case UnauthorizedAccessException e:
+                        // Unauthorized error
+                        response.StatusCode = (int)HttpStatusCode.Unauthorized;
                         break;
                     case KeyNotFoundException e:
                         // not found error
