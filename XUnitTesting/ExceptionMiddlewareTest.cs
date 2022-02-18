@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Http;
 using Middlewares;
-using Middlewares.Helpers;
+using Middlewares.ExceptionHandler;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +21,7 @@ namespace XUnitTesting
             //arrange
             var expectedException = new AppException();
 
+            //Represents the next Middleware which needs to be invoked in the Request pipeline.
             RequestDelegate mockNextMiddleware = (HttpContext) =>
             {
                 return Task.FromException(expectedException);

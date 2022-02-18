@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Middlewares.Helpers
+namespace Middlewares.ExceptionHandler
 {
     public class ExampleErrorService
     {

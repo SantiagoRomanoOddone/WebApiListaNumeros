@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using Middlewares.Helpers;
+using Middlewares.ExceptionHandler;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,50 +12,24 @@ using System.Threading.Tasks;
 
 namespace Middlewares
 {
-    public class ExceptionMiddleware
+    
+    public class ExceptionMiddleware : ExceptionFilter
     {
         private readonly RequestDelegate _next;
 
         public ExceptionMiddleware(RequestDelegate next)
         {
-            _next = next;
+            _next = next;          
         }
-
         public async Task InvokeAsync(HttpContext context)
-        {
+        {          
             try
             {
                 await _next(context);
             }
             catch (Exception error)
             {
-                var response = context.Response;
-                response.ContentType = "application/json";
-
-                switch (error)
-                {
-                    case AppException e:
-                        // custom application error
-                        response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        break;
-                    case UnauthorizedAccessException e:
-                        // Unauthorized error
-                        response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                        break;
-                    case KeyNotFoundException e:
-                        // not found error
-                        response.StatusCode = (int)HttpStatusCode.NotFound;
-                        break;                 
-                    default:
-                        // unhandled error
-                        //ArgumentNullException
-                        response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        break;
-
-                }
-                 await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = error?.Message }));
-                //var result = JsonSerializer.Serialize(new { message = error?.Message });
-                //await response.WriteAsync(result);
+                await SetStatusCode(context, error);               
             }
         }         
     }

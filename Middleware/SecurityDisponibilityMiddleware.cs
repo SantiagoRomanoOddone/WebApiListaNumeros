@@ -3,8 +3,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Middlewares.Helpers;
+using Middlewares.ExceptionHandler;
 using Middlewares.Models;
+using Middlewares.SecurityDisponibilityHandler;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Middlewares
 {
-    public class SecurityDisponibilityMiddleware
+    public class SecurityDisponibilityMiddleware : SecurityDisponibilityFilter
     {
         private readonly RequestDelegate _next;
         private const string APIKEYNAME = "ApiKey";
@@ -35,45 +36,54 @@ namespace Middlewares
             //_memoryCache.Get<Root>(CHACHEKEYNAME);
             var functionalityResponse = context.Items["functionality-response"];
 
+
             await DisponibilityCheck(context);
-            await SecurityCheck(context);
+            /*await*/ SecurityCheck(context);
+
+
 
             await _next.Invoke(context);
 
         }
+        #region FeedbackDisponibility a borrar
+        //private async Task<HttpContext>
+        ///*void*/ DisponibilityCheck(HttpContext context)
+        //{
+        //    Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
+        //    bool available = false;
+        //    string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);
+        //    TimeSpan now = DateTime.Now.TimeOfDay;
 
-        private async Task<HttpContext> DisponibilityCheck(HttpContext context)
-        {
-            Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
-            bool available = false;
-            string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);
-            TimeSpan now = DateTime.Now.TimeOfDay;
+        //    try
+        //    {
+        //        Include include = response.data.availability.business_hours.includes.Find(x => x.weekday == day);
+        //        TimeSpan fromHour = Convert.ToDateTime(include.from_hour).TimeOfDay;
+        //        TimeSpan toHour = Convert.ToDateTime(include.to_hour).TimeOfDay;
 
-            try
-            {
-                Include include = response.data.availability.business_hours.includes.Find(x => x.weekday == day);
-                TimeSpan fromHour = Convert.ToDateTime(include.from_hour).TimeOfDay;
-                TimeSpan toHour = Convert.ToDateTime(include.to_hour).TimeOfDay;
+        //        if (include != null && fromHour < now && toHour > now)
+        //        {
+        //            available = true;
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        available = false;
+        //    }
+        //    if (available == false)
+        //    {
+        //        throw new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm");
+        //    }
 
-                if (include != null && fromHour < now && toHour > now)
-                {
-                    available = true;
-                }
-            }
-            catch
-            {
-                available = false;
-            }
-            if (available == false)
-            {
-                throw new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm");
-            }
-            return context;
-        }
-        private async Task<HttpContext> SecurityCheck(HttpContext context)
+        //    return context;
+        //}
+        #endregion
+
+        /*private  async Task<HttpContext>*/
+        public void SecurityCheck(HttpContext context)
         {
             var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
             string dataAccess = context.Request.Headers["Authorization"];
+            bool authorized = false;
             if (clientTipe == "Basic")
             {
                 string auth = dataAccess.Split(new char[] { ' ' })[1];
@@ -83,10 +93,12 @@ namespace Middlewares
                 string password = usernameAndPassword.Split(new char[] { ':' })[1];
                 if (username == "Admin" && password == "Admin123")
                 {
-                    return context;
+                    authorized = true;
+                    //return context;
                 }
                 else
                 {
+                    authorized = false;
                     throw new AppException("Email or password is incorrect");
                     //context.Response.StatusCode = 401;
                     //return;
@@ -100,11 +112,13 @@ namespace Middlewares
 
                 if (token != null)
                 {
+                    authorized = true;
                     attachAccountToContext(context, token);
-                    return context;                  
+                    //return context;                  
                 }
                 else
                 {
+                    authorized = false;
                     throw new UnauthorizedAccessException("Unauthorized!");
                 }
                 void attachAccountToContext(HttpContext context, string token)
@@ -136,9 +150,9 @@ namespace Middlewares
                         throw new AppException("Wrong Token Validation");
                     }
                 }
-            }
 
-            return context;
+            }
+            //return context;
         }
 
     }

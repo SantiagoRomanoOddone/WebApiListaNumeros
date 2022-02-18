@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-
-namespace Middlewares.Helpers
+namespace Middlewares.ExceptionHandler
 {
     public class AppException : Exception
     {
@@ -11,6 +13,5 @@ namespace Middlewares.Helpers
         public AppException() : base() { }
 
         public AppException(string message) : base(message) { }
-
     }
 }
