@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Middlewares.FunctionalityHandler;
 using Middlewares.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -14,47 +15,64 @@ namespace Middlewares
     public class FunctionalityMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IHttpClientFactory _clientFactory;
-        private readonly IMemoryCache _memoryCache;
-        public const string CHACHEKEYNAME = "CacheKey";
-        private readonly IConfiguration _configuration;
+        //private readonly IHttpClientFactory _clientFactory;
+        //private readonly IMemoryCache _memoryCache;
+        //public const string CHACHEKEYNAME = "CacheKey";
+        //private readonly IConfiguration _configuration;
+        private readonly IFunctionalityFilter _functionalityFilter;
 
-        public FunctionalityMiddleware(RequestDelegate next, IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration)
+        public FunctionalityMiddleware(RequestDelegate next, /*IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration,*/ IFunctionalityFilter functionalityFilter )
         {
             _next = next;
-            _clientFactory = clientFactory;
-            _memoryCache = memoryCache;
-            _configuration = configuration;
+            //_clientFactory = clientFactory;
+            //_memoryCache = memoryCache;
+            //_configuration = configuration;
+            _functionalityFilter = functionalityFilter;
         }
         public async Task InvokeAsync(HttpContext context)
         {
-            var request = new HttpRequestMessage(
-                HttpMethod.Get,
-                $"{_configuration["UrlMock:url"]}?channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}"
-                ) ;
-            var client = _clientFactory.CreateClient();
-            var response = await client.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
+            // prueba 
+            try
             {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                context.Items.Add("functionality-response", responseBody);
-                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-
-                // cache                
-                if (!context.Request.Headers.TryGetValue(CHACHEKEYNAME, out var extractedApiKey))
-                {
-                    var options = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(10));
-                    _memoryCache.Set(CHACHEKEYNAME, data, options);
-                }
-                // cache
+                await _functionalityFilter.FunctionalityCheck(context);
                 await _next.Invoke(context);
             }
-            else
+            catch (Exception ex)
             {
-                throw new Exception("Something Went Wrong! Error Ocurred");
+                throw ex;
             }
 
+
+            #region A borrare
+            // prueba 
+
+            //var request = new HttpRequestMessage(
+            //    HttpMethod.Get,
+            //    $"{_configuration["UrlMock:url"]}?channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}"
+            //    ) ;
+            //var client = _clientFactory.CreateClient();
+            //var response = await client.SendAsync(request);
+
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    var responseBody = await response.Content.ReadAsStringAsync();
+            //    context.Items.Add("functionality-response", responseBody);
+            //    Root data = JsonConvert.DeserializeObject<Root>(responseBody);
+
+            //    // cache                
+            //    if (!context.Request.Headers.TryGetValue(CHACHEKEYNAME, out var extractedApiKey))
+            //    {
+            //        var options = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            //        _memoryCache.Set(CHACHEKEYNAME, data, options);
+            //    }
+            //    // cache
+            //    await _next.Invoke(context);
+            //}
+            //else
+            //{
+            //    throw new Exception("Something Went Wrong! Error Ocurred");
+            //}
+            #endregion
 
             #region A borrar
             //var path = context.Request.Path;

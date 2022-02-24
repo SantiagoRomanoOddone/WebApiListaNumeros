@@ -18,7 +18,7 @@ namespace Middlewares.SecurityDisponibilityHandler
     {       
         public async Task/*<HttpContext>*/ DisponibilityCheck(HttpContext context)
         {
-            Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());            
+            Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());          
             string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);
             TimeSpan now = DateTime.Now.TimeOfDay;
 
@@ -43,83 +43,150 @@ namespace Middlewares.SecurityDisponibilityHandler
 
         }
 
-        public async Task<bool>/*Task<HttpContext>*/ SecurityCheck(HttpContext context)
+        public async Task/*<bool>/*Task<HttpContext>*/ SecurityCheck(HttpContext context)
         {
-            bool available = false;
+            // preuba 
+            //bool available = false;
             var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
             string dataAccess = context.Request.Headers["Authorization"];
-            if (clientTipe == "Basic")
+            try
             {
-                string auth = dataAccess.Split(new char[] { ' ' })[1];
-                Encoding encoding = Encoding.GetEncoding("UTF-8");
-                var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
-                string username = usernameAndPassword.Split(new char[] { ':' })[0];
-                string password = usernameAndPassword.Split(new char[] { ':' })[1];
-                if (username == "Admin" && password == "Admin123")
+                if (clientTipe == "Basic")
                 {
-                    available = true;
-                    //return context;
-                }
-                else
-                {
-                    available = false;
-                    throw new AppException("Email or password is incorrect");
-                }
-            }
-            else if (clientTipe == "Bearer")
-            {
-                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-                //var appSettings = context.RequestServices.GetRequiredService<IConfiguration>();
-                //var apiKey = appSettings.GetValue<string>(APIKEYNAME);
+                    string auth = dataAccess.Split(new char[] { ' ' })[1];
+                    Encoding encoding = Encoding.GetEncoding("UTF-8");
+                    var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
+                    string username = usernameAndPassword.Split(new char[] { ':' })[0];
+                    string password = usernameAndPassword.Split(new char[] { ':' })[1];
+                    if (username != "Admin" || password != "Admin123")
+                    {
+                        throw new AppException("Email or password is incorrect");
+                    }
 
-                if (token != null)
+                }
+                else if (clientTipe == "Bearer")
                 {
+                    var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
                     attachAccountToContext(context, token);
-                    available = true;
-                    //return context;
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException("Unauthorized!");
-                }
-                void attachAccountToContext(HttpContext context, string token)
-                {
-                    try
+
+                    void attachAccountToContext(HttpContext context, string token)
                     {
-                        var tokenHandler = new JwtSecurityTokenHandler();
-
-                        var key = Encoding.ASCII.GetBytes("SecretKeywqewqeqqqqqqqqqqqweeeeeeeeeeeeeeeeeeeqweqe");
-                        const string issuer = "https://localhost:44393";
-                        const string audience = "https://localhost:44388";
-
-                        //var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-                        //var issuer = _configuration["Jwt:Issuer"];
-                        //var audience = _configuration["Jwt:Audience"];
-
-                        tokenHandler.ValidateToken(token, new TokenValidationParameters
+                        try
                         {
-                            ValidateIssuerSigningKey = true,
-                            IssuerSigningKey = new SymmetricSecurityKey(key),
-                            ValidateIssuer = true,
-                            ValidateAudience = true,
-                            ValidIssuer = issuer,
-                            ValidAudience = audience,
-                            // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                            ClockSkew = TimeSpan.Zero
-                        }, out SecurityToken validatedToken);
+                            var tokenHandler = new JwtSecurityTokenHandler();
 
-                        var jwtToken = (JwtSecurityToken)validatedToken;
-                        var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
+                            var key = Encoding.ASCII.GetBytes("SecretKeywqewqeqqqqqqqqqqqweeeeeeeeeeeeeeeeeeeqweqe");
+                            const string issuer = "https://localhost:44393";
+                            const string audience = "https://localhost:44388";
+
+                            tokenHandler.ValidateToken(token, new TokenValidationParameters
+                            {
+                                ValidateIssuerSigningKey = true,
+                                IssuerSigningKey = new SymmetricSecurityKey(key),
+                                ValidateIssuer = true,
+                                ValidateAudience = true,
+                                ValidIssuer = issuer,
+                                ValidAudience = audience,
+                                // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+                                ClockSkew = TimeSpan.Zero
+                            }, out SecurityToken validatedToken);
+
+                            var jwtToken = (JwtSecurityToken)validatedToken;
+                            var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
+                        }
+                        catch
+                        {
+                            throw new AppException("Wrong Token Validation");
+                        }
                     }
-                    catch
-                    {
-                        throw new AppException("Wrong Token Validation");
-                    }
+
                 }
 
             }
-            return available;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            // prueba
+
+            #region FeedBack I,portante !
+            //bool available = false;
+            //var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
+            //string dataAccess = context.Request.Headers["Authorization"];
+            //if (clientTipe == "Basic")
+            //{
+            //    string auth = dataAccess.Split(new char[] { ' ' })[1];
+            //    Encoding encoding = Encoding.GetEncoding("UTF-8");
+            //    var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
+            //    string username = usernameAndPassword.Split(new char[] { ':' })[0];
+            //    string password = usernameAndPassword.Split(new char[] { ':' })[1];
+            //    if (username == "Admin" && password == "Admin123")
+            //    {
+            //        available = true;
+            //        //return context;
+            //    }
+            //    else
+            //    {
+            //        available = false;
+            //        throw new AppException("Email or password is incorrect");
+            //    }
+            //}
+            //else if (clientTipe == "Bearer")
+            //{
+            //    var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            //    //var appSettings = context.RequestServices.GetRequiredService<IConfiguration>();
+            //    //var apiKey = appSettings.GetValue<string>(APIKEYNAME);
+
+            //    if (token != null)
+            //    {
+            //        attachAccountToContext(context, token);
+            //        available = true;
+            //        //return context;
+            //    }
+            //    else
+            //    {
+            //        throw new UnauthorizedAccessException("Unauthorized!");
+            //    }
+            //    void attachAccountToContext(HttpContext context, string token)
+            //    {
+            //        try
+            //        {
+            //            var tokenHandler = new JwtSecurityTokenHandler();
+
+            //            var key = Encoding.ASCII.GetBytes("SecretKeywqewqeqqqqqqqqqqqweeeeeeeeeeeeeeeeeeeqweqe");
+            //            const string issuer = "https://localhost:44393";
+            //            const string audience = "https://localhost:44388";
+
+            //            //var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+            //            //var issuer = _configuration["Jwt:Issuer"];
+            //            //var audience = _configuration["Jwt:Audience"];
+
+            //            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            //            {
+            //                ValidateIssuerSigningKey = true,
+            //                IssuerSigningKey = new SymmetricSecurityKey(key),
+            //                ValidateIssuer = true,
+            //                ValidateAudience = true,
+            //                ValidIssuer = issuer,
+            //                ValidAudience = audience,
+            //                // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+            //                ClockSkew = TimeSpan.Zero
+            //            }, out SecurityToken validatedToken);
+
+            //            var jwtToken = (JwtSecurityToken)validatedToken;
+            //            var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
+            //        }
+            //        catch
+            //        {
+            //            throw new AppException("Wrong Token Validation");
+            //        }
+            //    }
+
+            //}
+            //return available;
             //return context;
+            #endregion
         }
     }
 }

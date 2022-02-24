@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Middlewares;
 using Middlewares.ExceptionHandler;
+using Middlewares.FunctionalityHandler;
 using Middlewares.SecurityDisponibilityHandler;
 using System;
 using System.Collections.Generic;
@@ -72,9 +73,11 @@ namespace WebApiListaNumeros
             #endregion
             services.AddTransient<IUserService, UserService>();
 
-            services.AddTransient<ISecurityDisponibilityFilter, SecurityDisponibilityFilter>();
-
             services.AddSingleton<IExceptionFilter, ExceptionFilter>();
+
+            services.AddTransient<IFunctionalityFilter, FunctionalityFilter>();
+
+            services.AddTransient<ISecurityDisponibilityFilter, SecurityDisponibilityFilter>();           
 
             services.AddSwaggerGen(c =>
             {

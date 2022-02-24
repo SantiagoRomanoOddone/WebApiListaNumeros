@@ -22,18 +22,8 @@ namespace WebApiListaNumeros.Controllers
         [HttpGet("list")]
         public async Task<IActionResult> GetResults()
         {
-           
-            try
-            {
-                var content = "BasicAuth API";
-                return Ok(content);
-            }
-            catch
-            {
-                throw new AppException("Email or password is incorrect");
-                //return response.StatusCode = (int)HttpStatusCode.BadRequest;
-                //return BadRequest();
-            }
+            var content = "BasicAuth API";
+            return Ok(content);
         }
 
 
