@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Middlewares;
 using Middlewares.ExceptionHandler;
+using Middlewares.SecurityDisponibilityHandler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,16 +33,11 @@ namespace WebApiListaNumeros
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IExceptionFilter, ExceptionFilter>();
-            services.AddMemoryCache();
-            //agregado
-            services.AddControllers();
-            services.AddHttpClient("MockService", c =>
-            {                
-                c.BaseAddress = new Uri("https://be2d9e2a-4c0f-41bb-ab02-b8731ec4654c.mock.pstmn.io?");
-            }              
-            );
             
+            services.AddMemoryCache();
+            services.AddControllers();
+            services.AddHttpClient();
+
 
             #region Authentication
             services.AddAuthentication(option =>
@@ -62,15 +58,23 @@ namespace WebApiListaNumeros
                     //Validate signature of the token
                     ValidateIssuerSigningKey = true,
 
-                    //I have to specify the values for "Audience", "Issuer" and "Secret key" in this project inside the appsettings.json file.
-                    ValidIssuer = Configuration["Jwt:Issuer"],
-                    ValidAudience = Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) //Configuration["JwtToken:SecretKey"]
+                    ValidIssuer = "https://localhost:44393",
+                    ValidAudience = "https://localhost:44388",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SecretKeywqewqeqqqqqqqqqqqweeeeeeeeeeeeeeeeeeeqweqe"))
+
+                    ////I have to specify the values for "Audience", "Issuer" and "Secret key" in this project inside the appsettings.json file.
+                    //ValidIssuer = Configuration["Jwt:Issuer"],
+                    //ValidAudience = Configuration["Jwt:Audience"],
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) //Configuration["JwtToken:SecretKey"]
                 };
             });
 
             #endregion
             services.AddTransient<IUserService, UserService>();
+
+            services.AddTransient<ISecurityDisponibilityFilter, SecurityDisponibilityFilter>();
+
+            services.AddSingleton<IExceptionFilter, ExceptionFilter>();
 
             services.AddSwaggerGen(c =>
             {

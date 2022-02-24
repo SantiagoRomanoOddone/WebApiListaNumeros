@@ -12,108 +12,84 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using Moq;
+using Middlewares.SecurityDisponibilityHandler;
+using System.Net;
 
 namespace XUnitTesting
 {
     
     public class SecurityDisponibilityMiddlewareTest
     {
-        private readonly IMemoryCache _memoryCache;
-        private readonly IConfiguration _configuration;
+        Mock<RequestDelegate> _next;
+        Mock<ISecurityDisponibilityFilter> _securityDisponibilityFilter;
+        DefaultHttpContext _context;
 
-
-        [Fact]
-        public async Task InvokeOnSunday_ThrowUnauthorizedAccessException()
+        public SecurityDisponibilityMiddlewareTest()
         {
-
-
+            _context = new DefaultHttpContext();
+            _next = new Mock<RequestDelegate>();
+            _securityDisponibilityFilter = new Mock<ISecurityDisponibilityFilter>();
         }
 
-
-
         [Fact]
+        public async Task SecurityDisponibilityMiddlewareTest_DisponibilityTest_Should_ThrowException()
+        {         
+            _context.Items["functionality-response"] = "{\n    \"data\": {\n        \"channel\": \"sucursal\",\n        \"endpoint\": \"/v1/minipompom/basic/list\",\n        \"method\": \"GET\",\n        \"availability\": {\n            \"business_hours\": {\n                \"includes_holidays\": true,\n                \"includes\": [\n                    {\n                        \"weekday\": \"mon\",\n                        \"from_hour\": \"02:00\",\n                        \"to_hour\": \"03:00\"\n                    },\n                    {\n                        \"weekday\": \"tue\",\n                        \"from_hour\": \"02:00\",\n                        \"to_hour\": \"03:00\"\n                    },\n                    {\n                        \"weekday\": \"wed\",\n                        \"from_hour\": \"02:00\",\n                        \"to_hour\": \"03:00\"\n                    },\n                    {\n                        \"weekday\": \"thu\",\n                        \"from_hour\": \"02:00\",\n                        \"to_hour\": \"22:00\"\n                    },\n                    {\n                        \"weekday\": \"fri\",\n                        \"from_hour\": \"02:00\",\n                        \"to_hour\": \"03:00\"\n                    },\n                    {\n                        \"weekday\": \"sat\",\n                        \"from_hour\": \"02:00\",\n                        \"to_hour\": \"03:00\"\n                    },\n                    {\n                        \"weekday\": \"sun\",\n                        \"from_hour\": \"02:00\",\n                        \"to_hour\": \"03:00\"\n                    }\n                ],\n                \"message\": {\n                    \"title\": \"\",\n                    \"detail\": null\n                }\n            },\n            \"out_of_service_list\": []\n        },\n        \"config\": {\n            \"security\": {\n                \"scopelevel\":\"basic\"\n            }\n        }\n    }\n}";
 
-        //theory inline data
-        public async Task SecurityDisponibilityMiddlewareTest_Disponibility_Security()
+
+            _securityDisponibilityFilter.Setup(repo => repo.DisponibilityCheck(_context)).Returns(Task.FromException(new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm")));
+            _securityDisponibilityFilter.Setup(repo => repo.SecurityCheck(_context));
+            var SecurityDisponibilityMiddleware = new SecurityDisponibilityMiddleware(_next.Object, _securityDisponibilityFilter.Object);
+
+            //Act
+            Func<Task> function = async () => { await SecurityDisponibilityMiddleware.InvokeAsync(_context); };
+
+
+            //assert
+            function.Should().Throw<UnauthorizedAccessException>().WithMessage("Unauthorized! Only Weekdays from 8 am to 10 pm");
+            
+        }
+        [Fact]
+        public async Task SecurityDisponibilityMiddlewareTest_DisponibilityTest_Should_Not_ThrowException()
         {
+            _context.Items["functionality-response"] = "{\n    \"data\": {\n        \"channel\": \"sucursal\",\n        \"endpoint\": \"/v1/minipompom/basic/list\",\n        \"method\": \"GET\",\n        \"availability\": {\n            \"business_hours\": {\n                \"includes_holidays\": true,\n                \"includes\": [\n                    {\n                        \"weekday\": \"mon\",\n                        \"from_hour\": \"08:00\",\n                        \"to_hour\": \"22:00\"\n                    },\n                    {\n                        \"weekday\": \"tue\",\n                        \"from_hour\": \"08:00\",\n                        \"to_hour\": \"22:00\"\n                    },\n                    {\n                        \"weekday\": \"wed\",\n                        \"from_hour\": \"08:00\",\n                        \"to_hour\": \"22:00\"\n                    },\n                    {\n                        \"weekday\": \"thu\",\n                        \"from_hour\": \"08:00\",\n                        \"to_hour\": \"22:00\"\n                    },\n                    {\n                        \"weekday\": \"fri\",\n                        \"from_hour\": \"08:00\",\n                        \"to_hour\": \"22:00\"\n                    },\n                    {\n                        \"weekday\": \"sat\",\n                        \"from_hour\": \"08:00\",\n                        \"to_hour\": \"22:00\"\n                    },\n                    {\n                        \"weekday\": \"sun\",\n                        \"from_hour\": \"08:00\",\n                        \"to_hour\": \"22:00\"\n                    }\n                ],\n                \"message\": {\n                    \"title\": \"\",\n                    \"detail\": null\n                }\n            },\n            \"out_of_service_list\": []\n        },\n        \"config\": {\n            \"security\": {\n                \"scopelevel\":\"basic\"\n            }\n        }\n    }\n}";
 
-            var itemss = new Root
-            {
-                data =
-                {
-                    channel = "sucursal",
-                    endpoint = "/v1/minipompom/basic/list",
-                    method = "GET",
-                    availability =
-                    {
-                        business_hours =
-                        {
-                            includes_holidays = true,
-                            includes =
-                            {
-                                [0] =
-                                {
-                                    weekday = "mon",
-                                    from_hour = "08:00",
-                                    to_hour = "22:00"
-                                },
-                                [1] =
-                                {
-                                    weekday = "tue",
-                                    from_hour = "08:00",
-                                    to_hour = "22:00"
-                                },
-                            },
-                            message =
-                            {
-                                title = "",
-                                detail = null
-                            }
-                        },
-                        out_of_service_list = {}
-                    },
-                    config =
-                    {
-                        security =
-                        {
-                            scopelevel = "basic"
-                        }
-                    }
+            _securityDisponibilityFilter.Setup(repo => repo.DisponibilityCheck(_context));
+            _securityDisponibilityFilter.Setup(repo => repo.SecurityCheck(_context));
+            var SecurityDisponibilityMiddleware = new SecurityDisponibilityMiddleware(_next.Object, _securityDisponibilityFilter.Object);
 
-                }
-            };
-            var items = new Dictionary<string, object>() {
-            { "functionality-response", "123456" }
-            };
+            //Act
+            Func<Task> function = async () => { await SecurityDisponibilityMiddleware.InvokeAsync(_context); };
 
-
-
-            var httpContextMoq = new Mock<HttpContext>();
-
-            httpContextMoq.Setup(x => x.Items)
-                .Returns(new Dictionary<object, object>());
-
-            var httpContext = httpContextMoq.Object;
-
-
-            //Create a new instance of the middleware
-            RequestDelegate mockNextMiddleware = (HttpContext) =>
-            {
-                return Task.FromResult(0);
-            };
-            var securityDisponibilityMiddleware = new SecurityDisponibilityMiddleware(mockNextMiddleware, _memoryCache, _configuration);
-
-
-            //Act 
-            await securityDisponibilityMiddleware.InvokeAsync(httpContext);
-            //securityDisponibilityMiddleware.SecurityCheck(httpContext);
-
-
-            Assert.True(httpContext.Items.ContainsKey("functionality-response"));
-
-            //Assert.NotNull(httpContext);
+            //Assert
+            function.Should().NotThrow<UnauthorizedAccessException>();
 
         }
+        
+        //[Fact]
+        public async Task SecurityDisponibilityMiddlewareTest_BasicSecurityTest_Should_Throw_False()
+        {
+            //httpContextMoq.Setup(x => x.Request.Headers["Authorization"])
+            //    .Returns(httpContext.Request.Headers["Authorization"] = "Basic QWRtaW46QWRtaW4xMjM=");
+        }
+        //[Fact]
+        public async Task SecurityDisponibilityMiddlewareTest_BasicSecurityTest_Should_Throw_True()
+        {
+            //httpContextMoq.Setup(x => x.Request.Headers["Authorization"])
+            //    .Returns(httpContext.Request.Headers["Authorization"] = "Basic QWRtaW46QWRtaW4xMjM=");
+
+        }
+        //[Fact]
+        public async Task SecurityDisponibilityMiddlewareTest_BearerSecurityTest_Should_Throw_False()
+        {
+            //httpContextMoq.Setup(x => x.Request.Headers["Authorization"])
+            //    .Returns(httpContext.Request.Headers["Authorization"] = "Basic QWRtaW46QWRtaW4xMjM=");
+
+            //string issuer = "https://localhost:44393";
+            //string Key = "SecretKeywqewqeqqqqqqqqqqqweeeeeeeeeeeeeeeeeeeqweqe";
+            //string audience = "https://localhost:44388";
+        }
+        
 
 
     }
