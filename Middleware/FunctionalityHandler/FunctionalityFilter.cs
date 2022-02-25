@@ -14,26 +14,26 @@ namespace Middlewares.FunctionalityHandler
 {
     public class FunctionalityFilter : IFunctionalityFilter
     {
-        private readonly IHttpClientFactory _clientFactory;
-        private readonly IMemoryCache _memoryCache;
+        //private readonly IHttpClientFactory _clientFactory;
+        //private readonly IMemoryCache _memoryCache;
         public const string CHACHEKEYNAME = "CacheKey";
-        private readonly IConfiguration _configuration;
-        public FunctionalityFilter(IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration)
-        {
-            _clientFactory = clientFactory;
-            _memoryCache = memoryCache;
-            _configuration = configuration;
-        }
-        public async Task FunctionalityCheck(HttpContext context)
+        //private readonly IConfiguration _configuration;
+        //public FunctionalityFilter(IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration)
+        //{
+        //    _clientFactory = clientFactory;
+        //    _memoryCache = memoryCache;
+        //    _configuration = configuration;
+        //}
+        public async Task FunctionalityCheck(HttpContext context, IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration)
         {
             try
             {
                 var request = new HttpRequestMessage
                 (
                 HttpMethod.Get,
-                $"{_configuration["UrlMock:url"]}?channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}"
+                $"{configuration["UrlMock:url"]}?channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}"
                 );
-                var client = _clientFactory.CreateClient();
+                var client = clientFactory.CreateClient();
                 var response = await client.SendAsync(request);
 
                 if (!response.IsSuccessStatusCode)
@@ -47,7 +47,7 @@ namespace Middlewares.FunctionalityHandler
                 if (!context.Request.Headers.TryGetValue(CHACHEKEYNAME, out var extractedApiKey))
                 {
                     var options = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(10));
-                    _memoryCache.Set(CHACHEKEYNAME, data, options);
+                    memoryCache.Set(CHACHEKEYNAME, data, options);
                 }
                 //cache
             }

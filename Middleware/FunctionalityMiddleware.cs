@@ -29,12 +29,12 @@ namespace Middlewares
             //_configuration = configuration;
             _functionalityFilter = functionalityFilter;
         }
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration)
         {
             // prueba 
             try
             {
-                await _functionalityFilter.FunctionalityCheck(context);
+                await _functionalityFilter.FunctionalityCheck(context, clientFactory, memoryCache, configuration);
                 await _next.Invoke(context);
             }
             catch (Exception ex)
