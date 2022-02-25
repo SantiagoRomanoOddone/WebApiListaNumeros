@@ -1,0 +1,120 @@
+{
+  "SecurityDisponibilityResponse_Basic_Disponibility_Ok": {
+    "data": {
+      "channel": "sucursal",
+      "endpoint": "/v1/minipompom/basic/list",
+      "method": "GET",
+      "availability": {
+        "business_hours": {
+          "includes_holidays": true,
+          "includes": [
+            {
+              "weekday": "mon",
+              "from_hour": "08:00",
+              "to_hour": "22:00"
+            },
+            {
+              "weekday": "tue",
+              "from_hour": "08:00",
+              "to_hour": "22:00"
+            },
+            {
+              "weekday": "wed",
+              "from_hour": "08:00",
+              "to_hour": "22:00"
+            },
+            {
+              "weekday": "thu",
+              "from_hour": "08:00",
+              "to_hour": "22:00"
+            },
+            {
+              "weekday": "fri",
+              "from_hour": "08:00",
+              "to_hour": "22:00"
+            },
+            {
+              "weekday": "sat",
+              "from_hour": "08:00",
+              "to_hour": "22:00"
+            },
+            {
+              "weekday": "sun",
+              "from_hour": "08:00",
+              "to_hour": "22:00"
+            }
+          ],
+          "message": {
+            "title": "",
+            "detail": null
+          }
+        },
+        "out_of_service_list": []
+      },
+      "config": {
+        "security": {
+          "scopelevel": "basic"
+        }
+      }
+    }
+  },
+  "SecurityDisponibilityResponse_Basic_Disponibility_Not_Ok": {
+    "data": {
+      "channel": "sucursal",
+      "endpoint": "/v1/minipompom/basic/list",
+      "method": "GET",
+      "availability": {
+        "business_hours": {
+          "includes_holidays": true,
+          "includes": [
+            {
+              "weekday": "mon",
+              "from_hour": "02:00",
+              "to_hour": "03:00"
+            },
+            {
+              "weekday": "tue",
+              "from_hour": "02:00",
+              "to_hour": "03:00"
+            },
+            {
+              "weekday": "wed",
+              "from_hour": "02:00",
+              "to_hour": "03:00"
+            },
+            {
+              "weekday": "thu",
+              "from_hour": "02:00",
+              "to_hour": "03:00"
+            },
+            {
+              "weekday": "fri",
+              "from_hour": "02:00",
+              "to_hour": "03:00"
+            },
+            {
+              "weekday": "sat",
+              "from_hour": "02:00",
+              "to_hour": "03:00"
+            },
+            {
+              "weekday": "sun",
+              "from_hour": "02:00",
+              "to_hour": "03:00"
+            }
+          ],
+          "message": {
+            "title": "",
+            "detail": null
+          }
+        },
+        "out_of_service_list": []
+      },
+      "config": {
+        "security": {
+          "scopelevel": "basic"
+        }
+      }
+    }
+  }
+}

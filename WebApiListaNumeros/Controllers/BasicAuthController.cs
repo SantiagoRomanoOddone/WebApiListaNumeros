@@ -9,24 +9,18 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using WebApiListaNumeros.Services;
 
 namespace WebApiListaNumeros.Controllers
-{
-    
+{   
     [Route("/v1/minipompom/basic")]
     [ApiController]
     public class BasicAuthController : ControllerBase
     {
-
         [HttpGet("list")]
-        public async Task<IActionResult> GetResults()
+        public IActionResult GetResult()
         {
-            var content = "BasicAuth API";
-            return Ok(content);
+            return Ok(" BasicAuth API");
         }
-
-
     }
     #region JsonProperties  
     /// <summary>  

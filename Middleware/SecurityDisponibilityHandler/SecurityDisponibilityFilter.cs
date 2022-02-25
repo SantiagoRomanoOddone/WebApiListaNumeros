@@ -16,9 +16,9 @@ namespace Middlewares.SecurityDisponibilityHandler
 {
     public class SecurityDisponibilityFilter : ISecurityDisponibilityFilter
     {       
-        public async Task/*<HttpContext>*/ DisponibilityCheck(HttpContext context)
+        public async Task DisponibilityCheck(HttpContext context)
         {
-            Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());          
+            Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
             string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);
             TimeSpan now = DateTime.Now.TimeOfDay;
 
@@ -30,25 +30,20 @@ namespace Middlewares.SecurityDisponibilityHandler
 
                 if (include != null && fromHour > now && toHour < now)
                 {
-                    throw new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm");                 
+                    throw new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm");      
                 }               
             }
             catch (Exception ex)
             {
-                throw ex;
-                //throw new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm");
+                throw ex;                
             }
-            //return available;
-            //return context;
-
         }
 
-        public async Task/*<bool>/*Task<HttpContext>*/ SecurityCheck(HttpContext context)
+        public async Task SecurityCheck(HttpContext context)
         {
-            // preuba 
-            //bool available = false;
             var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
             string dataAccess = context.Request.Headers["Authorization"];
+
             try
             {
                 if (clientTipe == "Basic")
@@ -62,7 +57,6 @@ namespace Middlewares.SecurityDisponibilityHandler
                     {
                         throw new AppException("Email or password is incorrect");
                     }
-
                 }
                 else if (clientTipe == "Bearer")
                 {
@@ -74,7 +68,6 @@ namespace Middlewares.SecurityDisponibilityHandler
                         try
                         {
                             var tokenHandler = new JwtSecurityTokenHandler();
-
                             var key = Encoding.ASCII.GetBytes("SecretKeywqewqeqqqqqqqqqqqweeeeeeeeeeeeeeeeeeeqweqe");
                             const string issuer = "https://localhost:44393";
                             const string audience = "https://localhost:44388";
@@ -99,17 +92,12 @@ namespace Middlewares.SecurityDisponibilityHandler
                             throw new AppException("Wrong Token Validation");
                         }
                     }
-
                 }
-
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-
-            // prueba
-
             #region FeedBack I,portante !
             //bool available = false;
             //var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();

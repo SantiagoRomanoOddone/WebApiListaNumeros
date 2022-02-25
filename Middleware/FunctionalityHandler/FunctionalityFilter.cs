@@ -14,16 +14,7 @@ namespace Middlewares.FunctionalityHandler
 {
     public class FunctionalityFilter : IFunctionalityFilter
     {
-        //private readonly IHttpClientFactory _clientFactory;
-        //private readonly IMemoryCache _memoryCache;
         public const string CHACHEKEYNAME = "CacheKey";
-        //private readonly IConfiguration _configuration;
-        //public FunctionalityFilter(IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration)
-        //{
-        //    _clientFactory = clientFactory;
-        //    _memoryCache = memoryCache;
-        //    _configuration = configuration;
-        //}
         public async Task FunctionalityCheck(HttpContext context, IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration)
         {
             try
@@ -43,20 +34,18 @@ namespace Middlewares.FunctionalityHandler
                 var responseBody = await response.Content.ReadAsStringAsync();
                 context.Items.Add("functionality-response", responseBody);
                 Root data = JsonConvert.DeserializeObject<Root>(responseBody);
+
                 //cache
                 if (!context.Request.Headers.TryGetValue(CHACHEKEYNAME, out var extractedApiKey))
                 {
                     var options = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(10));
                     memoryCache.Set(CHACHEKEYNAME, data, options);
-                }
-                //cache
+                }                
             }
             catch (Exception ex)
             {
                 throw ex;
-            }
-
-            
+            }          
         }
     }
 }

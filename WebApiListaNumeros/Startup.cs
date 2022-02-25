@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebApiListaNumeros.Services;
 
 namespace WebApiListaNumeros
 {
@@ -28,17 +27,13 @@ namespace WebApiListaNumeros
         {
             Configuration = configuration;
         }
-
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
-            
+        {          
             services.AddMemoryCache();
             services.AddControllers();
             services.AddHttpClient();
-
 
             #region Authentication
             services.AddAuthentication(option =>
@@ -63,7 +58,6 @@ namespace WebApiListaNumeros
                     ValidAudience = "https://localhost:44388",
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SecretKeywqewqeqqqqqqqqqqqweeeeeeeeeeeeeeeeeeeqweqe"))
 
-                    ////I have to specify the values for "Audience", "Issuer" and "Secret key" in this project inside the appsettings.json file.
                     //ValidIssuer = Configuration["Jwt:Issuer"],
                     //ValidAudience = Configuration["Jwt:Audience"],
                     //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) //Configuration["JwtToken:SecretKey"]
@@ -71,7 +65,6 @@ namespace WebApiListaNumeros
             });
 
             #endregion
-            services.AddTransient<IUserService, UserService>();
 
             services.AddSingleton<IExceptionFilter, ExceptionFilter>();
 
@@ -96,9 +89,7 @@ namespace WebApiListaNumeros
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApiListaNumeros v1"));
             }
 
-            app.UseHttpsRedirection();
-
-            
+            app.UseHttpsRedirection();       
 
             app.UseRouting();
           

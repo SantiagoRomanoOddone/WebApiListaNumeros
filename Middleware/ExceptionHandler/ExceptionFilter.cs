@@ -11,7 +11,6 @@ namespace Middlewares.ExceptionHandler
 {
     public class ExceptionFilter : IExceptionFilter
     {
-
         public async Task SetStatusCode(HttpContext context, Exception error)
         {
             var response = context.Response;

@@ -10,8 +10,8 @@ namespace Middlewares.SecurityDisponibilityHandler
 {
     public interface ISecurityDisponibilityFilter
     {
-        Task/*<HttpContext>*/ DisponibilityCheck(HttpContext context);
-        Task/*<bool>/*<HttpContext>*/ SecurityCheck(HttpContext context);
+        Task DisponibilityCheck(HttpContext context);
+        Task SecurityCheck(HttpContext context);
 
     }
 }

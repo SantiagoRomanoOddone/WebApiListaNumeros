@@ -9,9 +9,7 @@ using System.Threading.Tasks;
 namespace WebApiListaNumeros.Controllers
 {
     [Route("/v1/minipompom/jwt")]
-    [ApiController]
-
-    
+    [ApiController]   
     public class BearerAuthController : ControllerBase
     {
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]

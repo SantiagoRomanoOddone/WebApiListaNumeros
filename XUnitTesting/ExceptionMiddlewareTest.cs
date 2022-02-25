@@ -17,7 +17,6 @@ namespace XUnitTesting
 {
     public class ExceptionMiddlewareTest 
     {
-
         Mock<RequestDelegate> _next ;
         Mock<Middlewares.ExceptionHandler.IExceptionFilter> _exceptionFilter;
         DefaultHttpContext _context;

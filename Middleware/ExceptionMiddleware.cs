@@ -11,8 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Middlewares
-{
-    
+{   
     public class ExceptionMiddleware 
     {
         private readonly RequestDelegate _next;
