@@ -12,6 +12,6 @@ namespace Middlewares.FunctionalityHandler
 {
     public interface IFunctionalityFilter
     {
-        Task FunctionalityCheck(HttpContext context, IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration);
+        Task FunctionalityCheck(HttpContext context/*, IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration*/);
     }
 }

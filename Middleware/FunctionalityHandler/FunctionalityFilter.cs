@@ -14,17 +14,29 @@ namespace Middlewares.FunctionalityHandler
 {
     public class FunctionalityFilter : IFunctionalityFilter
     {
+        private readonly IHttpClientFactory _clientFactory;
+        private readonly IMemoryCache _memoryCache;
         public const string CHACHEKEYNAME = "CacheKey";
-        public async Task FunctionalityCheck(HttpContext context, IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration)
+
+        public FunctionalityFilter(IHttpClientFactory clientFactory, IMemoryCache memoryCache)
+        {
+            _clientFactory = clientFactory;
+            _memoryCache = memoryCache;
+       
+        }        
+        public async Task FunctionalityCheck(HttpContext context)
         {
             try
             {
+                var uri = new Uri("https://be2d9e2a-4c0f-41bb-ab02-b8731ec4654c.mock.pstmn.io?");
                 var request = new HttpRequestMessage
                 (
                 HttpMethod.Get,
-                $"{configuration["UrlMock:url"]}?channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}"
+
+                $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}"
+
                 );
-                var client = clientFactory.CreateClient();
+                var client = _clientFactory.CreateClient();
                 var response = await client.SendAsync(request);
 
                 if (!response.IsSuccessStatusCode)
@@ -34,12 +46,12 @@ namespace Middlewares.FunctionalityHandler
                 var responseBody = await response.Content.ReadAsStringAsync();
                 context.Items.Add("functionality-response", responseBody);
                 Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-
+                // TODO: chequear si está nula la información antes. VALIDAR SI HORA ACTUAL ES MAYOR QUE HORA CHACHE. GUARDAR CON KEY REPRESENTATIVA (metodo y path)
                 //cache
                 if (!context.Request.Headers.TryGetValue(CHACHEKEYNAME, out var extractedApiKey))
                 {
                     var options = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(10));
-                    memoryCache.Set(CHACHEKEYNAME, data, options);
+                    _memoryCache.Set(CHACHEKEYNAME, data, options);
                 }                
             }
             catch (Exception ex)

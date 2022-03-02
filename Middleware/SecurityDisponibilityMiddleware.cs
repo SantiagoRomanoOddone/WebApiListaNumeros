@@ -20,23 +20,26 @@ namespace Middlewares
     public class SecurityDisponibilityMiddleware 
     {
         private readonly RequestDelegate _next;      
-        private readonly ISecurityDisponibilityFilter _securityDisponibilityFilter;
-        private readonly IMemoryCache _memoryCache;
-        public const string CHACHEKEYNAME = "CacheKey";
+        private readonly ISecurityFilter _securityFilter;
+        private readonly IDisponibilityFilter _disponibilityFilter;       
+        //public const string CHACHEKEYNAME = "CacheKey";
+        //private readonly IMemoryCache _memoryCache;
 
-        public SecurityDisponibilityMiddleware(RequestDelegate next, ISecurityDisponibilityFilter securityDisponibilityFilter, IMemoryCache memoryCache)
+        public SecurityDisponibilityMiddleware(RequestDelegate next, IDisponibilityFilter disponibilityFilter, ISecurityFilter securityFilter/*, IMemoryCache memoryCache*/)
         {
             _next = next;
-            _securityDisponibilityFilter = securityDisponibilityFilter;
-            _memoryCache = memoryCache;
+            _securityFilter = securityFilter;
+            _disponibilityFilter = disponibilityFilter;
+            //_memoryCache = memoryCache;          
         }
         public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                _memoryCache.Get<Root>(CHACHEKEYNAME);               
-                await _securityDisponibilityFilter.DisponibilityCheck(context);
-                await _securityDisponibilityFilter.SecurityCheck(context);
+                //_memoryCache.Get<Root>(CHACHEKEYNAME);
+                
+                await _disponibilityFilter.DisponibilityCheck(context);
+                await _securityFilter.SecurityCheck(context);
 
                 await _next.Invoke(context);
             }

@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
-    public interface ISecurityDisponibilityFilter
-    {
-        Task DisponibilityCheck(HttpContext context);
+    public interface ISecurityFilter
+    {       
         Task SecurityCheck(HttpContext context);
-
     }
 }

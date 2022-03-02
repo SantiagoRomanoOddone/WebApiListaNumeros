@@ -34,53 +34,41 @@ namespace XUnitTesting
         }
 
         [Fact]
-        public async Task FunctionalityMiddlewareTest_MockService_Should_NotThrowException()
+        public async Task RequestWithPathOk_ReturNextInvoke()
         {          
-            Mock<IHttpClientFactory> _clientFactory = new Mock<IHttpClientFactory>();
-            Mock<IMemoryCache> _memoryCache = new Mock<IMemoryCache>();
-            Mock<IConfiguration> _configuration = new Mock<IConfiguration>();
-
-            _configuration.Object["UrlMock:url"] = "https://be2d9e2a-4c0f-41bb-ab02-b8731ec4654c.mock.pstmn.io";
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/list";
-            var client = new HttpClient();
-            _clientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(client);
-            _functionalityFilter.Setup(x => x.FunctionalityCheck(_context, _clientFactory.Object, _memoryCache.Object, _configuration.Object))
+            
+            _functionalityFilter.Setup(x => x.FunctionalityCheck(_context))
                 .Returns(Task.CompletedTask);
 
             var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _functionalityFilter.Object);
 
             //Act
-            Func<Task> function = async () => { await functionalityMiddleware.InvokeAsync(_context, _clientFactory.Object, _memoryCache.Object, _configuration.Object); };
+            Func<Task> function = async () => { await functionalityMiddleware.InvokeAsync(_context); };
 
             //Assert
             function.Should().NotThrow<Exception>();
         }
         [Fact]
-        public async Task FunctionalityMiddlewareTest_MockService_Should_ThrowException()
+        public async Task RequestWithWrongPath_ReturFunctionalityException()
         {
-            Mock<IHttpClientFactory> _clientFactory = new Mock<IHttpClientFactory>();
-            Mock<IMemoryCache> _memoryCache = new Mock<IMemoryCache>();
-            Mock<IConfiguration> _configuration = new Mock<IConfiguration>();
+            _context.Request.Headers["Channel"] = "sucursal";
+            _context.Request.Method = "GET";
+            _context.Request.Path = "/v1/minipompom/basic/WRONGPATH";
 
-            _configuration.Object["UrlMock:url"] = "https://be2d9e2a-4c0f-41bb-ab02-b8731ec4654c.mock.pstmn.ioAAAAAAAAA";
-            _context.Request.Headers["Channel"] = "sAAAAAAAAAAAA";
-            _context.Request.Method = "GAAAAAAAAAAAA";
-            _context.Request.Path = "/v1/minipompom/basic/listAAAAAAAAAAAA";
-            var client = new HttpClient();
-            _clientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(client);
-
-            _functionalityFilter.Setup(x => x.FunctionalityCheck(_context, _clientFactory.Object, _memoryCache.Object, _configuration.Object))
-                .Returns(Task.FromException(new Exception()));
+            _functionalityFilter.Setup(x => x.FunctionalityCheck(_context))
+                .Returns(Task.FromException(new ArgumentNullException()));
 
             var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _functionalityFilter.Object);
 
             //Act
-            Func<Task> function = async () => { await functionalityMiddleware.InvokeAsync(_context, _clientFactory.Object, _memoryCache.Object, _configuration.Object); };
+            Func<Task> function = async () => { await functionalityMiddleware.InvokeAsync(_context); };
 
-            //Assert  
-            function.Should().Throw<Exception>();
+            //Assert
+            function.Should().Throw<ArgumentNullException>();
+
         }
     }
 }

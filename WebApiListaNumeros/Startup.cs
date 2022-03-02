@@ -70,7 +70,9 @@ namespace WebApiListaNumeros
 
             services.AddTransient<IFunctionalityFilter, FunctionalityFilter>();
 
-            services.AddTransient<ISecurityDisponibilityFilter, SecurityDisponibilityFilter>();           
+            services.AddTransient<IDisponibilityFilter, DisponibilityFilter>();
+
+            services.AddTransient<ISecurityFilter, SecurityFilter>();
 
             services.AddSwaggerGen(c =>
             {
@@ -86,7 +88,8 @@ namespace WebApiListaNumeros
                 app.UseDeveloperExceptionPage();
                 
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApiListaNumeros v1"));
+             
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("v1/minipompom/swagger/swagger.json", "WebApiListaNumeros v1"));
             }
 
             app.UseHttpsRedirection();       

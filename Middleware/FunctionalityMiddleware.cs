@@ -22,11 +22,11 @@ namespace Middlewares
             _next = next;
             _functionalityFilter = functionalityFilter;
         }
-        public async Task InvokeAsync(HttpContext context, IHttpClientFactory clientFactory, IMemoryCache memoryCache, IConfiguration configuration)
+        public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                await _functionalityFilter.FunctionalityCheck(context, clientFactory, memoryCache, configuration);
+                await _functionalityFilter.FunctionalityCheck(context);
                 await _next.Invoke(context);
             }
             catch (Exception ex)
