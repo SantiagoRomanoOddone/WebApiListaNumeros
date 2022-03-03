@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Middlewares.Auxiliaries;
 using Middlewares.Models;
 using Newtonsoft.Json;
 using System;
@@ -12,11 +13,12 @@ using System.Threading.Tasks;
 
 namespace Middlewares.FunctionalityHandler
 {
+   
     public class FunctionalityFilter : IFunctionalityFilter
     {
         private readonly IHttpClientFactory _clientFactory;
-        private readonly IMemoryCache _memoryCache;
-        public const string CHACHEKEYNAME = "CacheKey";
+        private readonly IMemoryCache _memoryCache;       
+
 
         public FunctionalityFilter(IHttpClientFactory clientFactory, IMemoryCache memoryCache)
         {
@@ -48,16 +50,23 @@ namespace Middlewares.FunctionalityHandler
                 Root data = JsonConvert.DeserializeObject<Root>(responseBody);
                 // TODO: chequear si está nula la información antes. VALIDAR SI HORA ACTUAL ES MAYOR QUE HORA CHACHE. GUARDAR CON KEY REPRESENTATIVA (metodo y path)
                 //cache
-                if (!context.Request.Headers.TryGetValue(CHACHEKEYNAME, out var extractedApiKey))
+                if (!_memoryCache.TryGetValue(CacheKeys.CHACHEKEYNAME, out var extractedApiKey))
                 {
-                    var options = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(10));
-                    _memoryCache.Set(CHACHEKEYNAME, data, options);
-                }                
+                    var cacheEntryOption = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+                        //Generar una caché sin vencimiento que se actualice al mismo instante que cuando vence la caché de 10 min
+                        .SetAbsoluteExpiration(TimeSpan.FromHours(30));
+                   
+                    _memoryCache.Set(CacheKeys.CHACHEKEYNAME, data, cacheEntryOption);
+                }
+
             }
             catch (Exception ex)
             {
                 throw ex;
-            }          
+            }
+           
         }
+
     }
 }
