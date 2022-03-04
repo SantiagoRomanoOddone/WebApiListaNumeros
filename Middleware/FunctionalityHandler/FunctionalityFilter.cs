@@ -19,7 +19,6 @@ namespace Middlewares.FunctionalityHandler
         private readonly IHttpClientFactory _clientFactory;
         private readonly IMemoryCache _memoryCache;       
 
-
         public FunctionalityFilter(IHttpClientFactory clientFactory, IMemoryCache memoryCache)
         {
             _clientFactory = clientFactory;
@@ -28,8 +27,10 @@ namespace Middlewares.FunctionalityHandler
         }        
         public async Task FunctionalityCheck(HttpContext context)
         {
+            
             try
             {
+
                 var uri = new Uri("https://be2d9e2a-4c0f-41bb-ab02-b8731ec4654c.mock.pstmn.io?");
                 var request = new HttpRequestMessage
                 (
@@ -47,26 +48,38 @@ namespace Middlewares.FunctionalityHandler
                 }
                 var responseBody = await response.Content.ReadAsStringAsync();
                 context.Items.Add("functionality-response", responseBody);
+
                 Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-                // TODO: chequear si está nula la información antes. VALIDAR SI HORA ACTUAL ES MAYOR QUE HORA CHACHE. GUARDAR CON KEY REPRESENTATIVA (metodo y path)
-                //cache
-                if (!_memoryCache.TryGetValue(CacheKeys.CHACHEKEYNAME, out var extractedApiKey))
-                {
-                    var cacheEntryOption = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromMinutes(10))
-                        //Generar una caché sin vencimiento que se actualice al mismo instante que cuando vence la caché de 10 min
-                        .SetAbsoluteExpiration(TimeSpan.FromHours(30));
-                   
-                    _memoryCache.Set(CacheKeys.CHACHEKEYNAME, data, cacheEntryOption);
-                }
+
+                OnCache(data);
 
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-           
+          
         }
+        public void OnCache(Root data)
+        {
+            var CurrentDateTime = DateTime.Now;
+            if (!_memoryCache.TryGetValue(CacheKeys.CHACHEKEYTIME, out DateTime cacheValue))
+            {
+                cacheValue = CurrentDateTime;
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(10));
+                _memoryCache.Set(CacheKeys.CHACHEKEYNAME, data, cacheEntryOptions);
+                _memoryCache.Set(CacheKeys.CHACHEKEYTIME, cacheValue, cacheEntryOptions);
+              
+            }
+            var CacheCurrentDateTime = cacheValue;
+            if (CurrentDateTime >= CacheCurrentDateTime)
+            {
+                var cacheEntryOptions2 = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
+                _memoryCache.Set(CacheKeys.CHACHEKEYNAME2, data, cacheEntryOptions2);
+            }
 
+        }
     }
 }
