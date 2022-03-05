@@ -19,7 +19,9 @@ namespace WebApiListaNumeros.Controllers
         [HttpGet("basic/list")]
         public async Task <IActionResult> GetResultBasic()
         {
-            return Ok(" BasicAuth API");
+            Random rnd = new Random();
+            var list = rnd.Next();
+            return Ok(list);
         }
 
 
@@ -27,7 +29,9 @@ namespace WebApiListaNumeros.Controllers
         [HttpGet("jwt/list")]
         public async Task<IActionResult> GetResultBrearer()
         {
-            return Ok(" BearerAuth API");
+            Random rnd = new Random();
+            var list = rnd.Next();
+            return Ok(list);
         }
     }
 }

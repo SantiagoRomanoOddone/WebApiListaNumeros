@@ -32,10 +32,8 @@ namespace Middlewares.ExceptionHandler
                     break;
                 default:
                     // unhandled error
-                    //ArgumentNullException
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     break;
-
             }
             await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = error?.Message }));
         }

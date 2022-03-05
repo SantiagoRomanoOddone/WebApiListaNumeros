@@ -13,11 +13,10 @@ using System.Threading.Tasks;
 
 namespace Middlewares.FunctionalityHandler
 {
-   
     public class FunctionalityFilter : IFunctionalityFilter
     {
         private readonly IHttpClientFactory _clientFactory;
-        private readonly IMemoryCache _memoryCache;       
+        private readonly IMemoryCache _memoryCache;      
 
         public FunctionalityFilter(IHttpClientFactory clientFactory, IMemoryCache memoryCache)
         {
@@ -26,19 +25,14 @@ namespace Middlewares.FunctionalityHandler
        
         }        
         public async Task FunctionalityCheck(HttpContext context)
-        {
-            
+        {           
             try
             {
-
                 var uri = new Uri("https://be2d9e2a-4c0f-41bb-ab02-b8731ec4654c.mock.pstmn.io?");
                 var request = new HttpRequestMessage
                 (
                 HttpMethod.Get,
-
-                $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}"
-
-                );
+                $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
                 var client = _clientFactory.CreateClient();
                 var response = await client.SendAsync(request);
 
@@ -50,9 +44,7 @@ namespace Middlewares.FunctionalityHandler
                 context.Items.Add("functionality-response", responseBody);
 
                 Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-
                 OnCache(data);
-
             }
             catch (Exception ex)
             {

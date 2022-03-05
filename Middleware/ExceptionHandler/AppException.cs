@@ -10,6 +10,6 @@ namespace Middlewares.ExceptionHandler
     {
         public AppException() : base() { }
 
-        public AppException(string message) : base("Eroor Orcurred") { }
+        public AppException(string message) : base("Error Orcurred") { }
     }
 }
