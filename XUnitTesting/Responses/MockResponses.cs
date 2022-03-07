@@ -20,7 +20,7 @@ namespace XUnitTesting.Responses
             public const string RESPONSE_BASIC_OK = "Basic QWRtaW46QWRtaW4xMjM=";
             public const string RESPONSE_BASIC_NOTOK = "Basic QWRtaTpBZG1pbjEy";
             public const string RESPONSE_BEARER_NOTOK = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwibmJmIjoxNjQ1ODExMDQ4LCJleHAiOjE2NDU4MTExMDgsImlhdCI6MTY0NTgxMTA0OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.rRUEChrSQOTsgdrrVI5JjZW7_P-O8XpkRUn7WqzFz8k";
-            public const string RESPONSE_BEARER_OK = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwibmJmIjoxNjQ2MjM2ODg4LCJleHAiOjE2NDYyMzgwODgsImlhdCI6MTY0NjIzNjg4OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.wTQ2VHx-biD-4b0QVGT6SXTe_T7Zoun6psTgE_AcQWk";
+            public const string RESPONSE_BEARER_OK = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwiaW1wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9jcmVhdGlvbi9BdXRoXCJ9IiwibmJmIjoxNjQ2NjY0MDkzLCJleHAiOjE2NDY2NjUyOTMsImlhdCI6MTY0NjY2NDA5MywiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.5C5Tyfi7egmmYf3W7UIW3lUuAhVUpsHG7MS-HaHfzCk";
 
         }
     }

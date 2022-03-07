@@ -17,7 +17,7 @@ namespace WebApiListaNumeros.Controllers
     public class AuthController : ControllerBase
     {
         [HttpGet("basic/list")]
-        public async Task <IActionResult> GetResultBasic()
+        public async Task <IActionResult> GetBasic()
         {
             Random rnd = new Random();
             var list = rnd.Next();
@@ -27,7 +27,7 @@ namespace WebApiListaNumeros.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("jwt/list")]
-        public async Task<IActionResult> GetResultBrearer()
+        public async Task<IActionResult> GetBrearer()
         {
             Random rnd = new Random();
             var list = rnd.Next();
