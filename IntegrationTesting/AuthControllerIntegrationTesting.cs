@@ -30,6 +30,8 @@ namespace IntegrationTesting
         [Fact]
         public async Task BasicAuthRequest_Should_ReturnList()
         {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "QWRtaW46QWRtaW4xMjM=");
+
             // Act
             var response = await _client.GetAsync("v1/minipompom/basic/list");
             response.EnsureSuccessStatusCode();
@@ -41,10 +43,22 @@ namespace IntegrationTesting
 
         }
         [Fact]
+        public async Task BasicAuthRequest_Should_ReturnUnauthorized()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "QWRtaTpBZG1pbjEy");
+
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/basic/list");
+
+            // Assert         
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+
+        }
+        [Fact]
         public async Task BearerAuthRequest_Should_ReturnList()
         {
 
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwiaW1wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9jcmVhdGlvbi9BdXRoXCJ9IiwibmJmIjoxNjQ2NjY0MDkzLCJleHAiOjE2NDY2NjUyOTMsImlhdCI6MTY0NjY2NDA5MywiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.5C5Tyfi7egmmYf3W7UIW3lUuAhVUpsHG7MS-HaHfzCk");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwiaW5wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9jcmVhdGlvbi9BdXRoXCJ9IiwibmJmIjoxNjQ2ODQ0NTA3LCJleHAiOjE2NDY4NTg5MDcsImlhdCI6MTY0Njg0NDUwNywiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.5XE8JUrR9G8aqOXywi762VQKsWE8a2gJachilQx3Sqs");
 
             // Act
             var response = await _client.GetAsync("v1/minipompom/jwt/list");

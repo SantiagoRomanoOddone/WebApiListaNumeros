@@ -38,7 +38,7 @@ namespace XUnitTesting
         {        
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
-            _context.Request.Path = "/v1/minipompom/basic/lista";
+            _context.Request.Path = "/v1/minipompom/basic/list";
 
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler.Protected()
@@ -63,7 +63,7 @@ namespace XUnitTesting
         {
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
-            _context.Request.Path = "/v1/minipompom/basic/lista";
+            _context.Request.Path = "/v1/minipompom/basic/list";
 
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler.Protected()
