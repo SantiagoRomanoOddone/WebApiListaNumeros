@@ -25,53 +25,168 @@ namespace Middlewares.FunctionalityHandler
        
         }        
         public async Task FunctionalityCheck(HttpContext context)
-        {           
+        {               
             try
             {
-                var uri = new Uri("https://be2d9e2a-4c0f-41bb-ab02-b8731ec4654c.mock.pstmn.io?");
-                var request = new HttpRequestMessage
-                (
-                HttpMethod.Get,
-                $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
-                var client = _clientFactory.CreateClient();
-                var response = await client.SendAsync(request);
-
-                if (!response.IsSuccessStatusCode)
+                if (context.Request.Path == "/v1/minipompom/basic/list")
                 {
-                    throw new Exception("Something Went Wrong! Error Ocurred");
-                }
-                var responseBody = await response.Content.ReadAsStringAsync();
-                context.Items.Add("functionality-response", responseBody);
+                    var CurrentDateTime = DateTime.Now;
+                    if (!_memoryCache.TryGetValue(CacheKeys.CHACHEKEYTIMEBASIC, out DateTime cacheValue))
+                    {
+                        var uri = new Uri("https://b4e7fdc5-a74d-4355-b165-8ee778b719b7.mock.pstmn.io?");
+                        var request = new HttpRequestMessage
+                        (
+                        HttpMethod.Get,
+                        $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
+                        var client = _clientFactory.CreateClient();
+                        var response = await client.SendAsync(request);
 
-                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-                OnCache(data);
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            throw new Exception("Something Went Wrong! Error Ocurred");
+                        }
+                        var responseBody = await response.Content.ReadAsStringAsync();
+
+                        Root data = JsonConvert.DeserializeObject<Root>(responseBody);
+
+                        cacheValue = CurrentDateTime;
+
+                        var cacheEntryOptions = new MemoryCacheEntryOptions()
+                            .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
+                        _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBASIC, data, cacheEntryOptions);
+                        _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBASIC, cacheValue, cacheEntryOptions);
+
+                        context.Items.Add("functionality-response", responseBody);
+                    }
+                    else
+                    {
+                        var tenMinutes = Convert.ToDateTime("00:10").TimeOfDay;
+                        var expirationTime = cacheValue + tenMinutes;
+
+                        if (CurrentDateTime < expirationTime)
+                        {
+                            var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CacheKeys.CHACHEKEYNAMEBASIC));
+                            context.Items.Add("functionality-response", cachedata);
+                            Root data = JsonConvert.DeserializeObject<Root>(cachedata);
+                        }
+                        else
+                        {
+                            var uri = new Uri("https://b4e7fdc5-a74d-4355-b165-8ee778b719b7.mock.pstmn.io?");
+                            var request = new HttpRequestMessage
+                            (
+                            HttpMethod.Get,
+                            $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
+                            var client = _clientFactory.CreateClient();
+                            var response = await client.SendAsync(request);
+
+                            if (!response.IsSuccessStatusCode)
+                            {
+                                var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CacheKeys.CHACHEKEYNAMEBASIC));
+                                context.Items.Add("functionality-response", cachedata);
+                                Root data = JsonConvert.DeserializeObject<Root>(cachedata);
+                            }
+                            else
+                            {
+                                var responseBody = await response.Content.ReadAsStringAsync();
+                                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
+                                cacheValue = CurrentDateTime;
+
+                                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                                    .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
+                                _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBASIC, data, cacheEntryOptions);
+                                _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBASIC, cacheValue, cacheEntryOptions);
+
+                                context.Items.Add("functionality-response", responseBody);
+                            }
+
+                        }
+
+                    }
+
+                }
+                else if (context.Request.Path == "/v1/minipompom/jwt/list")
+                {
+                    var CurrentDateTime = DateTime.Now;
+                    if (!_memoryCache.TryGetValue(CacheKeys.CHACHEKEYTIMEBEARER, out DateTime cacheValue))
+                    {
+                        var uri = new Uri("https://b4e7fdc5-a74d-4355-b165-8ee778b719b7.mock.pstmn.io?");
+                        var request = new HttpRequestMessage
+                        (
+                        HttpMethod.Get,
+                        $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
+                        var client = _clientFactory.CreateClient();
+                        var response = await client.SendAsync(request);
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            throw new Exception("Something Went Wrong! Error Ocurred");
+                        }
+                        var responseBody = await response.Content.ReadAsStringAsync();
+
+                        Root data = JsonConvert.DeserializeObject<Root>(responseBody);
+
+                        cacheValue = CurrentDateTime;
+
+                        var cacheEntryOptions = new MemoryCacheEntryOptions()
+                            .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
+                        _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBEARER, data, cacheEntryOptions);
+                        _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBEARER, cacheValue, cacheEntryOptions);
+
+                        context.Items.Add("functionality-response", responseBody);
+                    }
+                    else
+                    {
+                        var tenMinutes = Convert.ToDateTime("00:10").TimeOfDay;
+                        var expirationTime = cacheValue + tenMinutes;
+
+                        if (CurrentDateTime < expirationTime)
+                        {
+                            var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CacheKeys.CHACHEKEYNAMEBEARER));
+                            context.Items.Add("functionality-response", cachedata);
+                            Root data = JsonConvert.DeserializeObject<Root>(cachedata);
+                        }
+                        else
+                        {
+                            var uri = new Uri("https://b4e7fdc5-a74d-4355-b165-8ee778b719b7.mock.pstmn.io?");
+                            var request = new HttpRequestMessage
+                            (
+                            HttpMethod.Get,
+                            $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
+                            var client = _clientFactory.CreateClient();
+                            var response = await client.SendAsync(request);
+
+                            if (!response.IsSuccessStatusCode)
+                            {
+                                var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CacheKeys.CHACHEKEYNAMEBEARER));
+                                context.Items.Add("functionality-response", cachedata);
+                                Root data = JsonConvert.DeserializeObject<Root>(cachedata);
+                            }
+                            else
+                            {
+                                var responseBody = await response.Content.ReadAsStringAsync();
+                                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
+                                cacheValue = CurrentDateTime;
+
+                                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                                    .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
+                                _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBEARER, data, cacheEntryOptions);
+                                _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBEARER, cacheValue, cacheEntryOptions);
+
+                                context.Items.Add("functionality-response", responseBody);
+                            }
+
+                        }
+
+                    }
+                }
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
           
-        }
-        public void OnCache(Root data)
-        {
-            var CurrentDateTime = DateTime.Now;
-            if (!_memoryCache.TryGetValue(CacheKeys.CHACHEKEYTIME, out DateTime cacheValue))
-            {
-                cacheValue = CurrentDateTime;
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(10));
-                _memoryCache.Set(CacheKeys.CHACHEKEYNAME, data, cacheEntryOptions);
-                _memoryCache.Set(CacheKeys.CHACHEKEYTIME, cacheValue, cacheEntryOptions);
+        }      
               
-            }
-            var CacheCurrentDateTime = cacheValue;
-            if (CurrentDateTime >= CacheCurrentDateTime)
-            {
-                var cacheEntryOptions2 = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
-                _memoryCache.Set(CacheKeys.CHACHEKEYNAME2, data, cacheEntryOptions2);
-            }
-
-        }
     }
 }

@@ -8,9 +8,12 @@ namespace Middlewares.Auxiliaries
 {
     public static class CacheKeys
     {
-        public static string CHACHEKEYNAME => "CacheKey";
-        public static string CHACHEKEYTIME => "CacheTime";
-        public static string CHACHEKEYNAME2 => "CacheKey2";
+        public static string CHACHEKEYNAMEBASIC => "CacheKeyBasic";
+        public static string CHACHEKEYTIMEBASIC => "CacheTimeBasic";
+        public static string CHACHEKEYNAMEBEARER => "CacheKeyBearer";
+        public static string CHACHEKEYTIMEBEARER => "CacheTimeBearer";
+
+
 
     }
 }

@@ -19,14 +19,13 @@ namespace Middlewares.SecurityDisponibilityHandler
     {       
         public async Task SecurityCheck(HttpContext context)
         {
-            var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
-            string dataAccess = context.Request.Headers["Authorization"];
-
+            //var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
+            //string dataAccess = context.Request.Headers["Authorization"];
             try
             {
-                if (clientTipe == "Basic")
+                if (context.Request.Path == "/v1/minipompom/basic/list")
                 {
-                    string auth = dataAccess.Split(new char[] { ' ' })[1];
+                    string auth = context.Request.Headers["Authorization"].ToString().Split(new char[] { ' ' })[1];
                     Encoding encoding = Encoding.GetEncoding("UTF-8");
                     var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
                     string username = usernameAndPassword.Split(new char[] { ':' })[0];
@@ -36,7 +35,7 @@ namespace Middlewares.SecurityDisponibilityHandler
                         throw new UnauthorizedAccessException("Email or password is incorrect");
                     }
                 }
-                else if (clientTipe == "Bearer")
+                else if (context.Request.Path == "/v1/minipompom/jwt/list")
                 {
                     var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
                    Validate(token);                  
