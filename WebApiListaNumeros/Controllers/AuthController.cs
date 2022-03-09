@@ -33,12 +33,5 @@ namespace WebApiListaNumeros.Controllers
             var list = rnd.Next();
             return Ok(list);
         }
-        [HttpGet("basic/list/FunctionalityOk")]
-        public async Task<IActionResult> GetMockBasicFunctionalityOk()
-        {
-            Random rnd = new Random();
-            var list = rnd.Next();
-            return Ok(list);
-        }
     }
 }
