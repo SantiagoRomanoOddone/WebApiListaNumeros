@@ -1,4 +1,5 @@
 using FluentAssertions;
+using IntegrationTesting.Responses;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http.Features;
@@ -28,9 +29,10 @@ namespace IntegrationTesting
             _client = _server.CreateClient();
         }
         [Fact]
-        public async Task BasicAuthRequest_Should_ReturnList()
+        public async Task BasicAuthRequest_DisponibilityCheck_ShouldBe_OK_SecurityCheck_ShouldBe_Ok()
         {
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "QWRtaW46QWRtaW4xMjM=");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_OK);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
 
             // Act
             var response = await _client.GetAsync("v1/minipompom/basic/list");
@@ -43,9 +45,9 @@ namespace IntegrationTesting
 
         }
         [Fact]
-        public async Task BasicAuthRequest_Should_ReturnUnauthorized()
+        public async Task BasicAuthRequest_DisponibilityCheck_ShouldBe_OK_SecurityCheck_Should_throw_Unauthorized()
         {
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "QWRtaTpBZG1pbjEy");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_NOTOK);
 
             // Act
             var response = await _client.GetAsync("v1/minipompom/basic/list");
@@ -55,10 +57,11 @@ namespace IntegrationTesting
 
         }
         [Fact]
-        public async Task BearerAuthRequest_Should_ReturnList()
+        public async Task BearerAuthRequest_DisponibilityCheck_ShouldBe_OK_SecurityCheck_ShouldBe_Ok()
         {
 
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwiaW5wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9jcmVhdGlvbi9BdXRoXCJ9IiwibmJmIjoxNjQ2ODQ0NTA3LCJleHAiOjE2NDY4NTg5MDcsImlhdCI6MTY0Njg0NDUwNywiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.5XE8JUrR9G8aqOXywi762VQKsWE8a2gJachilQx3Sqs");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_OK);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
 
             // Act
             var response = await _client.GetAsync("v1/minipompom/jwt/list");
@@ -71,16 +74,60 @@ namespace IntegrationTesting
 
         }
         [Fact]
-        public async Task BearerAuthRequest_Should_ReturnUnauthorized()
+        public async Task BearerAuthRequest_DisponibilityCheck_ShouldBe_OK_SecurityCheck_Should_throw_Unauthorized()
         {
 
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwibmJmIjoxNjQ2MjM2ODg4LCJleHAiOjE2NDYyMzgwODgsImlhdCI6MTY0NjIzNjg4OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.wTQ2VHx-biD-4b0QVGT6SXTe_T7Zoun6psTgE_AcQWk");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK);
 
             // Act
             var response = await _client.GetAsync("v1/minipompom/jwt/list");
 
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+        [Fact]
+        public async Task BasicAuthRequest_DisponibilityCheck_Should_throw_Unauthorized()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_OK);
+            _client.DefaultRequestHeaders.Add("channel", "mock");
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/basic/list");
+
+            // Assert         
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+        [Fact]
+        public async Task BearerAuthRequest_DisponibilityCheck_Should_throw_Unauthorized()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_OK);
+            _client.DefaultRequestHeaders.Add("channel", "mock");
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/jwt/list");
+
+            // Assert         
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+        [Fact]
+        public async Task BasicAuthRequest_FunctionalityResponse_NotFound_Should_throw_InternalServerError()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_OK);
+            _client.DefaultRequestHeaders.Add("channel", "mocknotfound");
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/basic/list");
+
+            // Assert         
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+        [Fact]
+        public async Task BearerAuthRequest_FunctionalityResponse_NotFound_Should_throw_InternalServerError()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_OK);
+            _client.DefaultRequestHeaders.Add("channel", "mocknotfound");
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/jwt/list");
+
+            // Assert         
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
     }
 }
