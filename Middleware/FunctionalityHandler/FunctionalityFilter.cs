@@ -40,29 +40,16 @@ namespace Middlewares.FunctionalityHandler
                         $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
                         var client = _clientFactory.CreateClient();
                         var response = await client.SendAsync(request);
-
                         if (!response.IsSuccessStatusCode)
                         {
                             throw new Exception("Something Went Wrong! Error Ocurred");
                         }
                         var responseBody = await response.Content.ReadAsStringAsync();
-
-                        Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-
-                        cacheValue = CurrentDateTime;
-
-                        var cacheEntryOptions = new MemoryCacheEntryOptions()
-                            .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
-                        _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBASIC, data, cacheEntryOptions);
-                        _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBASIC, cacheValue, cacheEntryOptions);
-
-                        context.Items.Add("functionality-response", responseBody);
+                        SetCacheBasic(responseBody, CurrentDateTime);
                     }
                     else
                     {
-                        var tenMinutes = Convert.ToDateTime("00:10").TimeOfDay;
-                        var expirationTime = cacheValue + tenMinutes;
-
+                        var expirationTime = cacheValue + Convert.ToDateTime("00:10").TimeOfDay;
                         if (CurrentDateTime < expirationTime)
                         {
                             var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CacheKeys.CHACHEKEYNAMEBASIC));
@@ -78,7 +65,6 @@ namespace Middlewares.FunctionalityHandler
                             $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
                             var client = _clientFactory.CreateClient();
                             var response = await client.SendAsync(request);
-
                             if (!response.IsSuccessStatusCode)
                             {
                                 var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CacheKeys.CHACHEKEYNAMEBASIC));
@@ -88,15 +74,7 @@ namespace Middlewares.FunctionalityHandler
                             else
                             {
                                 var responseBody = await response.Content.ReadAsStringAsync();
-                                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-                                cacheValue = CurrentDateTime;
-
-                                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                                    .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
-                                _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBASIC, data, cacheEntryOptions);
-                                _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBASIC, cacheValue, cacheEntryOptions);
-
-                                context.Items.Add("functionality-response", responseBody);
+                                SetCacheBasic(responseBody, CurrentDateTime);
                             }
 
                         }
@@ -122,23 +100,11 @@ namespace Middlewares.FunctionalityHandler
                             throw new Exception("Something Went Wrong! Error Ocurred");
                         }
                         var responseBody = await response.Content.ReadAsStringAsync();
-
-                        Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-
-                        cacheValue = CurrentDateTime;
-
-                        var cacheEntryOptions = new MemoryCacheEntryOptions()
-                            .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
-                        _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBEARER, data, cacheEntryOptions);
-                        _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBEARER, cacheValue, cacheEntryOptions);
-
-                        context.Items.Add("functionality-response", responseBody);
+                        SetCacheBearer(responseBody, CurrentDateTime);
                     }
                     else
                     {
-                        var tenMinutes = Convert.ToDateTime("00:10").TimeOfDay;
-                        var expirationTime = cacheValue + tenMinutes;
-
+                        var expirationTime = cacheValue + Convert.ToDateTime("00:10").TimeOfDay;
                         if (CurrentDateTime < expirationTime)
                         {
                             var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CacheKeys.CHACHEKEYNAMEBEARER));
@@ -164,15 +130,7 @@ namespace Middlewares.FunctionalityHandler
                             else
                             {
                                 var responseBody = await response.Content.ReadAsStringAsync();
-                                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-                                cacheValue = CurrentDateTime;
-
-                                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                                    .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
-                                _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBEARER, data, cacheEntryOptions);
-                                _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBEARER, cacheValue, cacheEntryOptions);
-
-                                context.Items.Add("functionality-response", responseBody);
+                                SetCacheBearer(responseBody, CurrentDateTime);
                             }
 
                         }
@@ -184,6 +142,26 @@ namespace Middlewares.FunctionalityHandler
             catch (Exception ex)
             {
                 throw ex;
+            }
+            void SetCacheBasic(string responseBody, DateTime CurrentDateTime)
+            {
+                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
+                DateTime cacheValue = CurrentDateTime;
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
+                _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBASIC, data, cacheEntryOptions);
+                _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBASIC, cacheValue, cacheEntryOptions);
+                context.Items.Add("functionality-response", responseBody);
+            }
+            void SetCacheBearer(string responseBody, DateTime CurrentDateTime)
+            {
+                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
+                DateTime cacheValue = CurrentDateTime;
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
+                _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBEARER, data, cacheEntryOptions);
+                _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBEARER, cacheValue, cacheEntryOptions);
+                context.Items.Add("functionality-response", responseBody);
             }
           
         }      
