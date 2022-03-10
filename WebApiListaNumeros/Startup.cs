@@ -35,37 +35,6 @@ namespace WebApiListaNumeros
             services.AddControllers();
             services.AddHttpClient();
 
-            #region Authentication
-            services.AddAuthentication(option =>
-            {
-                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    //Validate the server. That generates the token
-                    ValidateIssuer = true,
-                    //Validate the recipient of the token is authorized to receive
-                    ValidateAudience = true,
-                    //Check if the token is not expired and the signing key of the issuer is valid
-                    ValidateLifetime = false,
-                    //Validate signature of the token
-                    ValidateIssuerSigningKey = true,
-
-                    ValidIssuer = "https://localhost:44393",
-                    ValidAudience = "https://localhost:44388",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SecretKeywqewqeqqqqqqqqqqqweeeeeeeeeeeeeeeeeeeqweqe"))
-
-                    //ValidIssuer = Configuration["Jwt:Issuer"],
-                    //ValidAudience = Configuration["Jwt:Audience"],
-                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) //Configuration["JwtToken:SecretKey"]
-                };
-            });
-
-            #endregion
-
             services.AddSingleton<IExceptionFilter, ExceptionFilter>();
 
             services.AddTransient<IFunctionalityFilter, FunctionalityFilter>();

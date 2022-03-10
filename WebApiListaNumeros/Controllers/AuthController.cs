@@ -24,8 +24,6 @@ namespace WebApiListaNumeros.Controllers
             return Ok(list);
         }
 
-
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("jwt/list")]
         public async Task<IActionResult> GetBrearer()
         {
