@@ -29,7 +29,7 @@ namespace IntegrationTesting
             _client = _server.CreateClient();
         }
         [Fact]
-        public async Task BasicAuthRequest_DisponibilityCheck_ShouldBe_OK_SecurityCheck_ShouldBe_Ok()
+        public async Task RequestWithBasicAuth_BasicCredentialsOkOnDisponibilityRange_ReturnOk()
         {
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_OK);
             _client.DefaultRequestHeaders.Add("channel", "sucursal");
@@ -42,12 +42,12 @@ namespace IntegrationTesting
             // Assert         
             responseString.Should().NotBeNullOrEmpty();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
         }
         [Fact]
-        public async Task BasicAuthRequest_DisponibilityCheck_ShouldBe_OK_SecurityCheck_Should_throw_Unauthorized()
+        public async Task RequestWithBasicAuth_BasicCredentialsNotOkOnDisponibilityRange_ReturnUnauthorized()
         {
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_NOTOK);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
 
             // Act
             var response = await _client.GetAsync("v1/minipompom/basic/list");
@@ -57,7 +57,7 @@ namespace IntegrationTesting
 
         }
         [Fact]
-        public async Task BearerAuthRequest_DisponibilityCheck_ShouldBe_OK_SecurityCheck_ShouldBe_Ok()
+        public async Task RequestWithBearerAuth_BearerCredentialsOkOnDisponibilityRange_ReturnOk()
         {
 
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_OK);
@@ -74,7 +74,7 @@ namespace IntegrationTesting
 
         }
         [Fact]
-        public async Task BearerAuthRequest_DisponibilityCheck_ShouldBe_OK_SecurityCheck_Should_throw_Unauthorized()
+        public async Task RequestWithBearerAuth_BearerCredentialsNotOkOnDisponibilityRange_ReturnUnauthorized()
         {
 
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK);
@@ -86,7 +86,7 @@ namespace IntegrationTesting
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
         [Fact]
-        public async Task BasicAuthRequest_DisponibilityCheck_Should_throw_Unauthorized()
+        public async Task RequestWithBasicAuth_BasicCredentialsOkOutOfDisponibilityRange_ReturnUnauthorized()
         {
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_OK);
             _client.DefaultRequestHeaders.Add("channel", "mock");
@@ -97,7 +97,7 @@ namespace IntegrationTesting
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
         [Fact]
-        public async Task BearerAuthRequest_DisponibilityCheck_Should_throw_Unauthorized()
+        public async Task RequestWithBearerAuth_BearerCredentialsOkOutOfDisponibilityRange_ReturnUnauthorized()
         {
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_OK);
             _client.DefaultRequestHeaders.Add("channel", "mock");
@@ -108,7 +108,7 @@ namespace IntegrationTesting
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
         [Fact]
-        public async Task BasicAuthRequest_FunctionalityResponse_NotFound_Should_throw_InternalServerError()
+        public async Task RequestWithBasicAuth_BasicCredentialsOk_FunctionalityResponseNotFound_ReturnInternalServerError()
         {
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_OK);
             _client.DefaultRequestHeaders.Add("channel", "mocknotfound");
@@ -119,7 +119,7 @@ namespace IntegrationTesting
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         }
         [Fact]
-        public async Task BearerAuthRequest_FunctionalityResponse_NotFound_Should_throw_InternalServerError()
+        public async Task RequestWithBearerAuth_BearerCredentialsOk_FunctionalityResponseNotFound_ReturnInternalServerError()
         {
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_OK);
             _client.DefaultRequestHeaders.Add("channel", "mocknotfound");
