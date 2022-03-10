@@ -15,101 +15,37 @@ namespace Middlewares.FunctionalityHandler
 {
     public class FunctionalityFilter : IFunctionalityFilter
     {
+        public string CHACHEKEYNAME;
+        public string CHACHEKEYTIME;
         private readonly IHttpClientFactory _clientFactory;
         private readonly IMemoryCache _memoryCache;
-       
+
         public FunctionalityFilter(IHttpClientFactory clientFactory, IMemoryCache memoryCache)
         {
             _clientFactory = clientFactory;
             _memoryCache = memoryCache;    
-        }        
+        }
+      
         public async Task FunctionalityCheck(HttpContext context)
         {
-            var uri = new Uri("https://b4e7fdc5-a74d-4355-b165-8ee778b719b7.mock.pstmn.io?");
-            var client = _clientFactory.CreateClient();
-            var CurrentDateTime = DateTime.Now;
+            var CurrentDateTime = DateTime.Now;                 
             try
             {
-                if (context.Request.Path == "/v1/minipompom/basic/list")
+                GetCacheKey();
+                if (!_memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue))
                 {
-                    if (!_memoryCache.TryGetValue(CacheKeys.CHACHEKEYTIMEBASIC, out DateTime cacheValue))
-                    {
-                        var request = new HttpRequestMessage
-                        (
-                        HttpMethod.Get,
-                        $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
-                        var response = await client.SendAsync(request);
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            throw new Exception("Something Went Wrong! Error Ocurred");
-                        }
-                        var responseBody = await response.Content.ReadAsStringAsync();
-                        SetCacheBasic(responseBody, CurrentDateTime);
-                    }
-                    else
-                    {
-                        if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
-                        {
-                            GetCacheBasic();
-                        }
-                        else
-                        {
-                            var request = new HttpRequestMessage
-                            (
-                            HttpMethod.Get,
-                            $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
-                            var response = await client.SendAsync(request);
-                            if (!response.IsSuccessStatusCode)
-                            {
-                                GetCacheBasic();
-                            }
-                            else
-                            {
-                                var responseBody = await response.Content.ReadAsStringAsync();
-                                SetCacheBasic(responseBody, CurrentDateTime);
-                            }
-                        }
-                    }
+                    await FirstFunctionalityResponseAsync();
+                    SetCache(CurrentDateTime);
                 }
-                else if (context.Request.Path == "/v1/minipompom/jwt/list")
+                else
                 {
-                    if (!_memoryCache.TryGetValue(CacheKeys.CHACHEKEYTIMEBEARER, out DateTime cacheValue))
+                    if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:01").TimeOfDay)
                     {
-                        var request = new HttpRequestMessage
-                        (
-                        HttpMethod.Get,
-                        $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
-                        var response = await client.SendAsync(request);
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            throw new Exception("Something Went Wrong! Error Ocurred");
-                        }
-                        var responseBody = await response.Content.ReadAsStringAsync();
-                        SetCacheBearer(responseBody, CurrentDateTime);
+                        GetCache();
                     }
                     else
                     {
-                        if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
-                        {
-                            GetCacheBearer();
-                        }
-                        else
-                        {
-                            var request = new HttpRequestMessage
-                            (
-                            HttpMethod.Get,
-                            $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
-                            var response = await client.SendAsync(request);
-                            if (!response.IsSuccessStatusCode)
-                            {
-                                GetCacheBearer();
-                            }
-                            else
-                            {
-                                var responseBody = await response.Content.ReadAsStringAsync();
-                                SetCacheBearer(responseBody, CurrentDateTime);
-                            }
-                        }
+                        await FunctionalityResponseAsync();
                     }
                 }
             }
@@ -117,40 +53,72 @@ namespace Middlewares.FunctionalityHandler
             {
                 throw ex;
             }
-            void SetCacheBasic(string responseBody, DateTime CurrentDateTime)
-            {
-                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-                DateTime cacheValue = CurrentDateTime;
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
-                _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBASIC, data, cacheEntryOptions);
-                _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBASIC, cacheValue, cacheEntryOptions);
-                context.Items.Add("functionality-response", responseBody);
-            }
-            void GetCacheBasic()
-            {
-                var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CacheKeys.CHACHEKEYNAMEBASIC));
-                context.Items.Add("functionality-response", cachedata);
-                Root data = JsonConvert.DeserializeObject<Root>(cachedata);
-            }
-            void SetCacheBearer(string responseBody, DateTime CurrentDateTime)
-            {
-                Root data = JsonConvert.DeserializeObject<Root>(responseBody);
-                DateTime cacheValue = CurrentDateTime;
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
-                _memoryCache.Set(CacheKeys.CHACHEKEYNAMEBEARER, data, cacheEntryOptions);
-                _memoryCache.Set(CacheKeys.CHACHEKEYTIMEBEARER, cacheValue, cacheEntryOptions);
-                context.Items.Add("functionality-response", responseBody);
-            }
-            void GetCacheBearer()
-            {
-                var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CacheKeys.CHACHEKEYNAMEBEARER));
-                context.Items.Add("functionality-response", cachedata);
-                Root data = JsonConvert.DeserializeObject<Root>(cachedata);
-            }
 
-        }      
-              
+            void GetCacheKey()
+            {
+                if (context.Request.Path == "/v1/minipompom/basic/list")
+                {
+                    CHACHEKEYNAME = "CacheKeyBasic";
+                    CHACHEKEYTIME = "CacheTimeBasic";
+                }
+                else if (context.Request.Path == "/v1/minipompom/jwt/list")
+                {
+                    CHACHEKEYNAME = "CacheKeyBearer";
+                    CHACHEKEYTIME = "CacheTimeBearer";
+                }
+            }
+            void SetCache(DateTime CurrentDateTime)
+            {
+                Root data = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
+                DateTime cacheValue = CurrentDateTime;
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
+                _memoryCache.Set(CHACHEKEYNAME, data, cacheEntryOptions);
+                _memoryCache.Set(CHACHEKEYTIME, cacheValue, cacheEntryOptions);
+            }
+            void GetCache()
+            {
+                var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CHACHEKEYNAME));
+                context.Items.Add("functionality-response", cachedata);
+                Root data = JsonConvert.DeserializeObject<Root>(cachedata);
+            }
+            async Task FirstFunctionalityResponseAsync()
+            {
+                var uri = new Uri("https://b4e7fdc5-a74d-4355-b165-8ee778b719b7.mock.pstmn.io?");
+                var client = _clientFactory.CreateClient();
+                var request = new HttpRequestMessage
+                (
+                HttpMethod.Get,
+                $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
+                var response = await client.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Something Went Wrong! Error Ocurred");
+                }
+                var responseBody = await response.Content.ReadAsStringAsync();
+                context.Items.Add("functionality-response", responseBody);
+            }
+            async Task FunctionalityResponseAsync()
+            {
+                var uri = new Uri("https://b4e7fdc5-a74d-4355-b165-8ee778b719b7.mock.pstmn.io?");
+                var client = _clientFactory.CreateClient();
+                var request = new HttpRequestMessage
+                (
+                HttpMethod.Get,
+                $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
+                var response = await client.SendAsync(request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    GetCache();
+                }
+                else
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    context.Items.Add("functionality-response", responseBody);
+                    SetCache(CurrentDateTime);
+                }
+            }
+        }
+     
     }
 }

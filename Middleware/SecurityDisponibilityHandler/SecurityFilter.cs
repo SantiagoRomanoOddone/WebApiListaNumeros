@@ -19,8 +19,6 @@ namespace Middlewares.SecurityDisponibilityHandler
     {       
         public async Task SecurityCheck(HttpContext context)
         {
-            //var clientTipe = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
-            //string dataAccess = context.Request.Headers["Authorization"];
             try
             {
                 if (context.Request.Path == "/v1/minipompom/basic/list")
