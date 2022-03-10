@@ -22,22 +22,17 @@ namespace Middlewares
         private readonly RequestDelegate _next;      
         private readonly ISecurityFilter _securityFilter;
         private readonly IDisponibilityFilter _disponibilityFilter;       
-        //public const string CHACHEKEYNAME = "CacheKey";
-        //private readonly IMemoryCache _memoryCache;
 
-        public SecurityDisponibilityMiddleware(RequestDelegate next, IDisponibilityFilter disponibilityFilter, ISecurityFilter securityFilter/*, IMemoryCache memoryCache*/)
+        public SecurityDisponibilityMiddleware(RequestDelegate next, IDisponibilityFilter disponibilityFilter, ISecurityFilter securityFilter)
         {
             _next = next;
             _securityFilter = securityFilter;
-            _disponibilityFilter = disponibilityFilter;
-            //_memoryCache = memoryCache;          
+            _disponibilityFilter = disponibilityFilter;      
         }
         public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                //_memoryCache.Get<Root>(CHACHEKEYNAME);
-                
                 await _disponibilityFilter.DisponibilityCheck(context);
                 await _securityFilter.SecurityCheck(context);
 
