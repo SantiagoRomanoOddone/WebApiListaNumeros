@@ -11,22 +11,22 @@ namespace Middlewares.ExceptionHandler
 {
     public class ExceptionFilter : IExceptionFilter
     {
-        public async Task SetStatusCode(HttpContext context, Exception error)
+        public async Task SetStatusCode(HttpContext context, Exception ex)
         {
             var response = context.Response;
             response.ContentType = "application/json";
 
-            switch (error)
+            switch (ex)
             {
-                case AppException e:
+                case AppException:
                     // custom application error
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
                     break;
-                case UnauthorizedAccessException e:
+                case UnauthorizedAccessException:
                     // Unauthorized error
                     response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     break;
-                case KeyNotFoundException e:
+                case KeyNotFoundException:
                     // not found error
                     response.StatusCode = (int)HttpStatusCode.NotFound;
                     break;
@@ -35,7 +35,7 @@ namespace Middlewares.ExceptionHandler
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     break;
             }
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = error?.Message }));
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = ex.Message }));
         }
     }
 }

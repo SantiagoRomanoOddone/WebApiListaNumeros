@@ -21,6 +21,7 @@ namespace IntegrationTesting
     {
         private readonly TestServer _server;
         private readonly HttpClient _client;
+
         public AuthControllerIntegrationTesting()
         {
             // Arrange
@@ -59,7 +60,6 @@ namespace IntegrationTesting
         [Fact]
         public async Task RequestWithBearerAuth_BearerCredentialsOkOnDisponibilityRange_ReturnOk()
         {
-
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_OK);
             _client.DefaultRequestHeaders.Add("channel", "sucursal");
 
@@ -71,7 +71,6 @@ namespace IntegrationTesting
             // Assert         
             responseString.Should().NotBeNullOrEmpty();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
         }
         [Fact]
         public async Task RequestWithBearerAuth_BearerCredentialsNotOkOnDisponibilityRange_ReturnUnauthorized()
@@ -128,6 +127,50 @@ namespace IntegrationTesting
 
             // Assert         
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        }
+        [Fact]
+        public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_MustHaveThreeSegments()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK_ONE_ARGUMENT);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
+           
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/jwt/list");
+            var responseString = await response.Content.ReadAsStringAsync();
+            
+            // Assert                    
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal("{\"message\":\"IDX12741: JWT: 'System.String' must have three segments (JWS) or five segments (JWE).\"}", responseString);
+        }
+        [Fact]
+        public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_LifetimeValidationFailed()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
+
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/jwt/list");
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            // Assert                    
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+
+            Assert.Equal("{\"message\":\"IDX10223: Lifetime validation failed. The token is expired. ValidTo: 'System.DateTime', Current time: 'System.DateTime'.\"}", responseString);
+        }
+        [Fact]
+        public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_SignatureValidationFailed()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK_WRONG_SIGNATURE);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
+
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/jwt/list");
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            // Assert                    
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+
+            Assert.Equal("{\"message\":\"IDX10503: Signature validation failed. Keys tried: 'System.Text.StringBuilder'.\\nExceptions caught:\\n 'System.Text.StringBuilder'.\\ntoken: 'System.IdentityModel.Tokens.Jwt.JwtSecurityToken'.\"}", responseString);
         }
     }
 }

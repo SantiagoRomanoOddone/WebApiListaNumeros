@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Middlewares.Auxiliaries;
+using System.Net;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
@@ -41,6 +42,7 @@ namespace Middlewares.SecurityDisponibilityHandler
             }
             catch (Exception ex)
             {
+                //context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 throw ex;
             }         
         }
@@ -66,9 +68,11 @@ namespace Middlewares.SecurityDisponibilityHandler
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
             }
-            catch
+            catch(Exception ex)
             {
-                throw new UnauthorizedAccessException("Wrong Token Validation");
+                throw new UnauthorizedAccessException(ex.Message);
+                //throw ex;
+                //throw new UnauthorizedAccessException("Wrong Token Validation");
             }
         }
     }
