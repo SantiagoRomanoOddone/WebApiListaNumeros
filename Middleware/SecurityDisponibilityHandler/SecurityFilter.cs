@@ -42,7 +42,6 @@ namespace Middlewares.SecurityDisponibilityHandler
             }
             catch (Exception ex)
             {
-                //context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 throw ex;
             }         
         }
@@ -71,8 +70,6 @@ namespace Middlewares.SecurityDisponibilityHandler
             catch(Exception ex)
             {
                 throw new UnauthorizedAccessException(ex.Message);
-                //throw ex;
-                //throw new UnauthorizedAccessException("Wrong Token Validation");
             }
         }
     }

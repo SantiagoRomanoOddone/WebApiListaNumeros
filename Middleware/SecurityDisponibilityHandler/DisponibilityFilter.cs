@@ -12,8 +12,7 @@ namespace Middlewares.SecurityDisponibilityHandler
     public class DisponibilityFilter : IDisponibilityFilter
     {
         public async Task DisponibilityCheck(HttpContext context)
-        {
-           
+        {          
             try
             {
                 Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
