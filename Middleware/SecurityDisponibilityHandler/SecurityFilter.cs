@@ -22,9 +22,10 @@ namespace Middlewares.SecurityDisponibilityHandler
         {
             try
             {
-                if (context.Request.Path == "/v1/minipompom/basic/list")
+                var user = context.Request.Headers["Authorization"];
+                if (context.Request.Path == "/v1/minipompom/basic/list" && user.FirstOrDefault()?.Split(" ").First() == "Basic")
                 {
-                    string auth = context.Request.Headers["Authorization"].ToString().Split(new char[] { ' ' })[1];
+                    string auth = user.ToString().Split(new char[] { ' ' })[1];
                     Encoding encoding = Encoding.GetEncoding("UTF-8");
                     var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
                     string username = usernameAndPassword.Split(new char[] { ':' })[0];
@@ -34,15 +35,20 @@ namespace Middlewares.SecurityDisponibilityHandler
                         throw new UnauthorizedAccessException("Email or password is incorrect");
                     }
                 }
-                else if (context.Request.Path == "/v1/minipompom/jwt/list")
+                else if (context.Request.Path == "/v1/minipompom/jwt/list" && user.FirstOrDefault()?.Split(" ").First() == "Bearer")
                 {
-                    var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-                   Validate(token);                  
+                    var token = user.FirstOrDefault()?.Split(" ").Last();
+                    Validate(token);                  
                 }
+                else
+                {
+                    throw new UnauthorizedAccessException("Unauthorized User for this endpoint");
+                }
+                
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new UnauthorizedAccessException(ex.Message);
             }         
         }
         void Validate(string token)

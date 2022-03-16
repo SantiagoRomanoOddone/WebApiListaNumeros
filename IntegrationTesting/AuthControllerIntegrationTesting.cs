@@ -170,8 +170,77 @@ namespace IntegrationTesting
 
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-
             Assert.Equal("{\"message\":\"IDX10503: Signature validation failed. Keys tried: 'System.Text.StringBuilder'.\\nExceptions caught:\\n 'System.Text.StringBuilder'.\\ntoken: 'System.IdentityModel.Tokens.Jwt.JwtSecurityToken'.\"}", responseString);
+        }
+        [Fact]
+        public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_UnableToDecodeHeader()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK_WRONGHEADER);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
+
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/jwt/list");
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            // Assert                    
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal("{\"message\":\"IDX12729: Unable to decode the header 'System.String' as Base64Url encoded string. jwtEncodedString: 'System.String'.\"}", responseString);
+        }
+        [Fact]
+        public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_TokenDoesNotHaveASignature()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK_NOSIGNATURE);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
+
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/jwt/list");
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            // Assert                    
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal("{\"message\":\"IDX10504: Unable to validate signature, token does not have a signature: 'System.String'.\"}", responseString);
+        }
+        [Fact]
+        public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_UnableToDecodeThePayload()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK_WRONGPAYLOAD);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
+
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/jwt/list");
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            // Assert                    
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal("{\"message\":\"IDX12723: Unable to decode the payload 'System.String' as Base64Url encoded string. jwtEncodedString: ''.\"}", responseString);
+        }
+        [Fact]
+        public async Task RequestWithBasicAuth_BasicCredentialsOkOnDisponibilityRange_WrongEndpoint_ReturnUnauthorizedWithMessage_WrongEndpoint()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_OK);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
+
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/jwt/list");
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            // Assert                    
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal("{\"message\":\"Unauthorized User for this endpoint\"}", responseString);
+        }
+        [Fact]
+        public async Task RequestWithBearerAuth_BearerCredentialsOkOnDisponibilityRange_WrongEndpoint_ReturnUnauthorizedWithMessage_WrongEndpoint()
+        {
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_OK);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
+
+            // Act
+            var response = await _client.GetAsync("v1/minipompom/basic/list");
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            // Assert                    
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal("{\"message\":\"Unauthorized User for this endpoint\"}", responseString);
         }
     }
 }
