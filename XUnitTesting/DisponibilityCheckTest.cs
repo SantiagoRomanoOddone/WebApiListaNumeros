@@ -22,7 +22,6 @@ namespace XUnitTesting
         [Fact]
         public async Task DisponibilityCheckTest_Should_NotThrowException()
         {
-
             _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_OK;
             var functionabilityFilter = new DisponibilityFilter();
 

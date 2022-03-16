@@ -77,6 +77,7 @@ namespace IntegrationTesting
         {
 
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK);
+            _client.DefaultRequestHeaders.Add("channel", "sucursal");
 
             // Act
             var response = await _client.GetAsync("v1/minipompom/jwt/list");

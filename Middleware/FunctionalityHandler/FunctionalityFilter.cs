@@ -34,12 +34,12 @@ namespace Middlewares.FunctionalityHandler
                 GetCacheKey();
                 if (!_memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue))
                 {
-                    await FirstFunctionalityResponseAsync();
+                    await FunctionalityResponseAsync();
                     SetCache(CurrentDateTime);
                 }
                 else
                 {
-                    if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:01").TimeOfDay)
+                    if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
                     {
                         GetCache();
                     }
@@ -82,42 +82,37 @@ namespace Middlewares.FunctionalityHandler
                 context.Items.Add("functionality-response", cachedata);
                 Root data = JsonConvert.DeserializeObject<Root>(cachedata);
             }
-            async Task FirstFunctionalityResponseAsync()
-            {
-                var uri = new Uri("https://b4e7fdc5-a74d-4355-b165-8ee778b719b7.mock.pstmn.io?");
-                var client = _clientFactory.CreateClient();
-                var request = new HttpRequestMessage
-                (
-                HttpMethod.Get,
-                $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
-                var response = await client.SendAsync(request);
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception("Something Went Wrong! Error Ocurred");
-                }
-                var responseBody = await response.Content.ReadAsStringAsync();
-                context.Items.Add("functionality-response", responseBody);
-            }
             async Task FunctionalityResponseAsync()
             {
-                var uri = new Uri("https://b4e7fdc5-a74d-4355-b165-8ee778b719b7.mock.pstmn.io?");
-                var client = _clientFactory.CreateClient();
-                var request = new HttpRequestMessage
-                (
-                HttpMethod.Get,
-                $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
-                var response = await client.SendAsync(request);
-                if (!response.IsSuccessStatusCode)
+                try
                 {
-                    GetCache();
+                    var uri = new Uri("https://b21c1330-5828-498a-b823-901a78cbf57d.mock.pstmn.io?");
+                    var client = _clientFactory.CreateClient();
+                    var request = new HttpRequestMessage
+                    (
+                    HttpMethod.Get,
+                    $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
+                    var response = await client.SendAsync(request);                   
+                    if (!response.IsSuccessStatusCode && !_memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue))
+                    {
+                        throw new Exception("Something Went Wrong! Error Ocurred");
+                    }
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        GetCache();
+                    }
+                    else
+                    {
+                        var responseBody = await response.Content.ReadAsStringAsync();
+                        context.Items.Add("functionality-response", responseBody);
+                    }
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    context.Items.Add("functionality-response", responseBody);
-                    SetCache(CurrentDateTime);
+                    throw new Exception(ex.Message);
                 }
-            }
+            }            
         }
      
     }

@@ -22,13 +22,15 @@ namespace XUnitTesting
         [Fact]
         public async Task SecurityCheckTest_Basic_Should_NotThrowException()
         {
+            //Arrange
             _context.Request.Path = "/v1/minipompom/basic/list";
             _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
-
+            //Act
             var securityFilter = new SecurityFilter();
 
             Func<Task> function = async () => { await securityFilter.SecurityCheck(_context); };
 
+            //Assert
             Assert.NotNull(function);
             function.Should().NotThrow<Exception>();
         }

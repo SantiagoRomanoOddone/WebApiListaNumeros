@@ -50,6 +50,8 @@ namespace XUnitTesting
                 });
             var client = new HttpClient(mockHttpMessageHandler.Object);
             _clientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(client);
+
+            //Act
             var functionabilityFilter = new FunctionalityFilter(_clientFactory.Object, _memoryCache.Object);
 
             Func<Task> function = async () => { await functionabilityFilter.FunctionalityCheck(_context);} ;
