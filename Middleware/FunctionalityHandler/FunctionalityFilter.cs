@@ -46,6 +46,7 @@ namespace Middlewares.FunctionalityHandler
                     else
                     {
                         await FunctionalityResponseAsync();
+                        SetCache(CurrentDateTime);
                     }
                 }
             }
@@ -80,7 +81,6 @@ namespace Middlewares.FunctionalityHandler
             {
                 var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CHACHEKEYNAME));
                 context.Items.Add("functionality-response", cachedata);
-                Root data = JsonConvert.DeserializeObject<Root>(cachedata);
             }
             async Task FunctionalityResponseAsync()
             {
