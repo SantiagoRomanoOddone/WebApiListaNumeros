@@ -23,27 +23,27 @@ namespace XUnitTesting
     public class FunctionalityMiddlewareTest
     {
         Mock<RequestDelegate> _next;
-        Mock<IFunctionalityFilter> _functionalityFilter;
+        Mock<ICacheProvider> _cacheprovider;
         DefaultHttpContext _context;
 
         public FunctionalityMiddlewareTest()
         {
             _context = new DefaultHttpContext();
             _next = new Mock<RequestDelegate>();
-            _functionalityFilter = new Mock<IFunctionalityFilter>();
+            _cacheprovider = new Mock<ICacheProvider>();
         }
 
         [Fact]
         public async Task RequestWithPathOk_ReturNextInvoke()
-        {          
+        {
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/list";
-            
-            _functionalityFilter.Setup(x => x.FunctionalityCheck(_context))
+
+            _cacheprovider.Setup(x => x.FunctionalityCheck(_context))
                 .Returns(Task.CompletedTask);
 
-            var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _functionalityFilter.Object);
+            var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _cacheprovider.Object);
 
             //Act
             Func<Task> function = async () => { await functionalityMiddleware.InvokeAsync(_context); };
@@ -58,10 +58,10 @@ namespace XUnitTesting
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/WRONGPATH";
 
-            _functionalityFilter.Setup(x => x.FunctionalityCheck(_context))
+            _cacheprovider.Setup(x => x.FunctionalityCheck(_context))
                 .Returns(Task.FromException(new ArgumentNullException()));
 
-            var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _functionalityFilter.Object);
+            var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _cacheprovider.Object);
 
             //Act
             Func<Task> function = async () => { await functionalityMiddleware.InvokeAsync(_context); };
