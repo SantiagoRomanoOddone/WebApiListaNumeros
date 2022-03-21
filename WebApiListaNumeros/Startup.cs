@@ -37,8 +37,6 @@ namespace WebApiListaNumeros
 
             services.AddSingleton<IExceptionFilter, ExceptionFilter>();
 
-            //services.AddTransient<IFunctionalityFilter, FunctionalityFilter>();
-
             services.AddSingleton<ICacheProvider, CacheProvider>();
 
             services.AddTransient<IDisponibilityFilter, DisponibilityFilter>();

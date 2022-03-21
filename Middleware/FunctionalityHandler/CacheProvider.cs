@@ -65,7 +65,8 @@ namespace Middlewares.FunctionalityHandler
                     CHACHEKEYNAME = "CacheKeyBearer";
                     CHACHEKEYTIME = "CacheTimeBearer";
                 }
-            }            
+            }         
+            
             async Task FunctionalityResponseAsync(SemaphoreSlim semaphore, DateTime cacheValue, DateTime CurrentDateTime)
             {
                 try
@@ -111,6 +112,7 @@ namespace Middlewares.FunctionalityHandler
                     semaphore.Release();
                 }
             }
+
             void SetCache(DateTime CurrentDateTime)
             {
                 Root data = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
@@ -120,6 +122,7 @@ namespace Middlewares.FunctionalityHandler
                 _memoryCache.Set(CHACHEKEYNAME, data, cacheEntryOptions);
                 _memoryCache.Set(CHACHEKEYTIME, cacheValue, cacheEntryOptions);
             }
+
             void GetCache()
             {
                 var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CHACHEKEYNAME));

@@ -15,20 +15,17 @@ namespace Middlewares
     public class FunctionalityMiddleware
     {
         private readonly RequestDelegate _next;
-        //private readonly IFunctionalityFilter _functionalityFilter;
         private readonly ICacheProvider _cacheProvider;
 
-        public FunctionalityMiddleware(RequestDelegate next/*, IFunctionalityFilter functionalityFilter*/ , ICacheProvider cacheProvider)
+        public FunctionalityMiddleware(RequestDelegate next, ICacheProvider cacheProvider)
         {
             _next = next;
-            //_functionalityFilter = functionalityFilter;
             _cacheProvider = cacheProvider;
         }
         public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                //await _functionalityFilter.FunctionalityCheck(context);
                 await _cacheProvider.FunctionalityCheck(context);
                 await _next.Invoke(context);
             }
