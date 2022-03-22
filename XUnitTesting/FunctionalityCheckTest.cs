@@ -32,10 +32,10 @@ namespace XUnitTesting
             _context = new DefaultHttpContext();
             _cacheEntry = new Mock<ICacheEntry>();
         }
-        
+
         [Fact]
-        public async Task FunctionalityChekTest_Should_ThrowException()
-        {        
+        public async Task FunctionalityCheckTest_Should_ThrowException()
+        {
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/list";
@@ -52,16 +52,16 @@ namespace XUnitTesting
             _clientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(client);
 
             //Act
-            var functionabilityFilter = new FunctionalityFilter(_clientFactory.Object, _memoryCache.Object);
+            var cacheProvider = new CacheProvider(_clientFactory.Object, _memoryCache.Object);
 
-            Func<Task> function = async () => { await functionabilityFilter.FunctionalityCheck(_context);} ;
+            Func<Task> function = async () => { await cacheProvider.FunctionalityCheck(_context); };
 
             //Assert
             Assert.NotNull(function);
             function.Should().Throw<Exception>();
         }
         [Fact]
-        public async Task FunctionalityChekTest_Should_NotThrowException()
+        public async Task FunctionalityCheckTest_Should_NotThrowException()
         {
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
@@ -82,9 +82,9 @@ namespace XUnitTesting
             _memoryCache.Setup(m => m.CreateEntry(It.IsAny<object>()))
             .Returns(_cacheEntry.Object);
 
-            var functionabilityFilter = new FunctionalityFilter(_clientFactory.Object, _memoryCache.Object);
+            var cacheProvider = new CacheProvider(_clientFactory.Object, _memoryCache.Object);
 
-            Func<Task> function = async () => { await functionabilityFilter.FunctionalityCheck(_context); };
+            Func<Task> function = async () => { await cacheProvider.FunctionalityCheck(_context); };
 
             //Assert
             Assert.NotNull(function);

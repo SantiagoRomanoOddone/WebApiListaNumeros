@@ -20,7 +20,7 @@ namespace XUnitTesting.Responses
             public const string RESPONSE_BASIC_OK = "Basic QWRtaW46QWRtaW4xMjM=";
             public const string RESPONSE_BASIC_NOTOK = "Basic QWRtaTpBZG1pbjEy";
             public const string RESPONSE_BEARER_NOTOK = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwibmJmIjoxNjQ1ODExMDQ4LCJleHAiOjE2NDU4MTExMDgsImlhdCI6MTY0NTgxMTA0OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.rRUEChrSQOTsgdrrVI5JjZW7_P-O8XpkRUn7WqzFz8k";
-            public const string RESPONSE_BEARER_OK = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwiaW5wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9BdXRoXCJ9IiwibmJmIjoxNjQ3ODY5Mzg4LCJleHAiOjE2NDc5MTI1ODgsImlhdCI6MTY0Nzg2OTM4OCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.28Fg4LDSyG3UHXrifWQ1741PoX0i4t6MXkHly80jnGs";
+            public const string RESPONSE_BEARER_OK = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwiaW5wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9BdXRoXCJ9IiwibmJmIjoxNjQ3OTUxMTc0LCJleHAiOjE2NDc5OTQzNzQsImlhdCI6MTY0Nzk1MTE3NCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.Q2EoFdPoeo2IghgjCWUY4G5zu4_FOXbBASuCn-dfv5o";
 
         }
     }

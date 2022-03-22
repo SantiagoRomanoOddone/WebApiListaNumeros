@@ -23,9 +23,9 @@ namespace XUnitTesting
         public async Task DisponibilityCheckTest_Should_NotThrowException()
         {
             _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_OK;
-            var functionabilityFilter = new DisponibilityFilter();
+            var disponibilityFilter = new DisponibilityFilter();
 
-            Func<Task> function = async () => { await functionabilityFilter.DisponibilityCheck(_context); };
+            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheck(_context); };
 
             Assert.NotNull(function);
             function.Should().NotThrow<Exception>();
@@ -35,9 +35,9 @@ namespace XUnitTesting
         {
 
             _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_NOT_OK;
-            var functionabilityFilter = new DisponibilityFilter();
+            var disponibilityFilter = new DisponibilityFilter();
 
-            Func<Task> function = async () => { await functionabilityFilter.DisponibilityCheck(_context); };
+            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheck(_context); };
 
             Assert.NotNull(function);
             function.Should().Throw<Exception>();
