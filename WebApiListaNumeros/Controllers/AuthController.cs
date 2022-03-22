@@ -17,8 +17,9 @@ namespace WebApiListaNumeros.Controllers
     public class AuthController : ControllerBase
     {
         [HttpGet("basic/list")]
-        public async Task <IActionResult> GetBasic()
+        public async Task<IActionResult> GetBasic()
         {
+
             Random rnd = new Random();
             var list = rnd.Next();
             return Ok(list);

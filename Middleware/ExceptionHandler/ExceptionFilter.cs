@@ -35,7 +35,15 @@ namespace Middlewares.ExceptionHandler
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     break;
             }
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = ex.Message }));
+            var result = JsonConvert.SerializeObject(new
+            {
+                StatusCode = response.StatusCode,
+                ErrorMessage = ex.Message
+            });
+            await context.Response.WriteAsync(result);
+
+
+            //await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = ex.Message }));
         }
     }
 }

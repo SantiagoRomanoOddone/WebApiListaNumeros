@@ -14,8 +14,8 @@ namespace Middlewares.FunctionalityHandler
 {
     public class CacheProvider : ICacheProvider
     {
-        public string CHACHEKEYNAME;
         public string CHACHEKEYTIME;
+        public string CHACHEKEYNAME;
         private readonly IMemoryCache _memoryCache;
         private readonly IHttpClientFactory _clientFactory;
         public CacheProvider(IHttpClientFactory clientFactory, IMemoryCache memoryCache)
@@ -28,7 +28,7 @@ namespace Middlewares.FunctionalityHandler
         {
             SemaphoreSlim GetUsersSemaphore = new SemaphoreSlim(1, 1);
             try
-            {
+            {               
                 await GetCacheKey();
                 var CurrentDateTime = DateTime.Now;
                 bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue);
@@ -65,6 +65,7 @@ namespace Middlewares.FunctionalityHandler
                     CHACHEKEYNAME = "CacheKeyBearer";
                     CHACHEKEYTIME = "CacheTimeBearer";
                 }
+                await Task.CompletedTask;
             }
 
             async Task FunctionalityResponseAsync(SemaphoreSlim semaphore, DateTime cacheValue, DateTime CurrentDateTime)
@@ -122,13 +123,15 @@ namespace Middlewares.FunctionalityHandler
                     .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
                 _memoryCache.Set(CHACHEKEYNAME, data, cacheEntryOptions);
                 _memoryCache.Set(CHACHEKEYTIME, cacheValue, cacheEntryOptions);
+                await Task.CompletedTask;
             }
 
             async Task GetCache()
             {
                 var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CHACHEKEYNAME));
                 context.Items.Add("functionality-response", cachedata);
+                await Task.CompletedTask;
             }          
-        }       
+        }
     }
 }
