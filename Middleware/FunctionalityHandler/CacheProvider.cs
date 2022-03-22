@@ -29,14 +29,14 @@ namespace Middlewares.FunctionalityHandler
             SemaphoreSlim GetUsersSemaphore = new SemaphoreSlim(1, 1);
             try
             {
-                GetCacheKey();
+                await GetCacheKey();
                 var CurrentDateTime = DateTime.Now;
                 bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue);
                 if (isAvaiable)
                 {
                     if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
                     {
-                        GetCache();
+                        await GetCache();
                     }
                     else
                     {
@@ -45,7 +45,7 @@ namespace Middlewares.FunctionalityHandler
                 }
                 else
                 {
-                    await FunctionalityResponseAsync(GetUsersSemaphore, cacheValue, CurrentDateTime);
+                    await FunctionalityResponseAsync(GetUsersSemaphore, cacheValue, CurrentDateTime);                    
                 }
             }
             catch (Exception ex)
@@ -53,7 +53,7 @@ namespace Middlewares.FunctionalityHandler
                 throw new Exception(ex.Message);
             }
 
-            void GetCacheKey()
+            async Task GetCacheKey()
             {
                 if (context.Request.Path == "/v1/minipompom/basic/list")
                 {
@@ -65,8 +65,8 @@ namespace Middlewares.FunctionalityHandler
                     CHACHEKEYNAME = "CacheKeyBearer";
                     CHACHEKEYTIME = "CacheTimeBearer";
                 }
-            }         
-            
+            }
+
             async Task FunctionalityResponseAsync(SemaphoreSlim semaphore, DateTime cacheValue, DateTime CurrentDateTime)
             {
                 try
@@ -76,7 +76,7 @@ namespace Middlewares.FunctionalityHandler
                     bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue);
                     if (isAvaiable && CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
                     {
-                        GetCache();
+                        await GetCache();
                     }
                     else
                     {
@@ -93,15 +93,16 @@ namespace Middlewares.FunctionalityHandler
                         }
                         if (!response.IsSuccessStatusCode)
                         {
-                            GetCache();
+                            await GetCache();
                         }
                         else
                         {
                             var responseBody = await response.Content.ReadAsStringAsync();
                             context.Items.Add("functionality-response", responseBody);
-                            SetCache(CurrentDateTime);
+                            await SetCache(CurrentDateTime);
                         }
-                    }                 
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -113,7 +114,7 @@ namespace Middlewares.FunctionalityHandler
                 }
             }
 
-            void SetCache(DateTime CurrentDateTime)
+            async Task SetCache(DateTime CurrentDateTime)
             {
                 Root data = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
                 DateTime cacheValue = CurrentDateTime;
@@ -123,11 +124,11 @@ namespace Middlewares.FunctionalityHandler
                 _memoryCache.Set(CHACHEKEYTIME, cacheValue, cacheEntryOptions);
             }
 
-            void GetCache()
+            async Task GetCache()
             {
                 var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CHACHEKEYNAME));
                 context.Items.Add("functionality-response", cachedata);
-            }
+            }          
         }       
     }
 }
