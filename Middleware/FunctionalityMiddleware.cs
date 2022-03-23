@@ -26,7 +26,8 @@ namespace Middlewares
         {
             await _cacheProvider.FunctionalityCheck(context);
 
-            await _next.Invoke(context);                  
+            await _next.Invoke(context);
+            
         }
 
     }

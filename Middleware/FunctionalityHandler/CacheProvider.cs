@@ -59,7 +59,6 @@ namespace Middlewares.FunctionalityHandler
                     CHACHEKEYNAME = "CacheKeyBearer";
                     CHACHEKEYTIME = "CacheTimeBearer";
                 }
-                await Task.CompletedTask;
             }
 
             async Task FunctionalityResponseAsync(SemaphoreSlim semaphore, DateTime cacheValue, DateTime CurrentDateTime)
@@ -82,11 +81,11 @@ namespace Middlewares.FunctionalityHandler
                         HttpMethod.Get,
                         $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
                         var response = await client.SendAsync(request);
-                        if (!response.IsSuccessStatusCode && !_memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue))
+                        if (response == null && !_memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue))
                         {
                             throw new Exception("Something Went Wrong! Error Ocurred");
                         }
-                        if (!response.IsSuccessStatusCode)
+                        if (response == null)
                         {
                             await GetCache();
                         }
@@ -97,10 +96,6 @@ namespace Middlewares.FunctionalityHandler
                             await SetCache(CurrentDateTime);
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.Message);
                 }
                 finally
                 {
@@ -122,7 +117,6 @@ namespace Middlewares.FunctionalityHandler
             {
                 var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CHACHEKEYNAME));
                 context.Items.Add("functionality-response", cachedata);
-                await Task.CompletedTask;
             }          
         }
     }

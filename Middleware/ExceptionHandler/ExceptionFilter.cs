@@ -21,15 +21,12 @@ namespace Middlewares.ExceptionHandler
             switch (ex)
             {
                 case AppException:
-                    // custom application error
                     response.StatusCode = (int)HttpStatusCode.BadRequest;                 
                     break;
                 case UnauthorizedAccessException:
-                    // Unauthorized error
                     response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     break;
                 case KeyNotFoundException:
-                    // not found error
                     response.StatusCode = (int)HttpStatusCode.NotFound;
                     break;
                 case SecurityTokenExpiredException:
