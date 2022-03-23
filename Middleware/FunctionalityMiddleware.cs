@@ -24,15 +24,9 @@ namespace Middlewares
         }
         public async Task InvokeAsync(HttpContext context)
         {
-            try
-            {
-                await _cacheProvider.FunctionalityCheck(context);
-                await _next.Invoke(context);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }                   
+            await _cacheProvider.FunctionalityCheck(context);
+
+            await _next.Invoke(context);                  
         }
 
     }

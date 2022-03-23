@@ -27,31 +27,25 @@ namespace Middlewares.FunctionalityHandler
         public async Task FunctionalityCheck(HttpContext context)
         {
             SemaphoreSlim GetUsersSemaphore = new SemaphoreSlim(1, 1);
-            try
-            {               
-                await GetCacheKey();
-                var CurrentDateTime = DateTime.Now;
-                bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue);
-                if (isAvaiable)
+            await GetCacheKey();
+            var CurrentDateTime = DateTime.Now;
+            bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue);
+            if (isAvaiable)
+            {
+                if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
                 {
-                    if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
-                    {
-                        await GetCache();
-                    }
-                    else
-                    {
-                        await FunctionalityResponseAsync(GetUsersSemaphore, cacheValue, CurrentDateTime);
-                    }
+                    await GetCache();
                 }
                 else
                 {
-                    await FunctionalityResponseAsync(GetUsersSemaphore, cacheValue, CurrentDateTime);                    
+                    await FunctionalityResponseAsync(GetUsersSemaphore, cacheValue, CurrentDateTime);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                throw new Exception(ex.Message);
-            }
+                await FunctionalityResponseAsync(GetUsersSemaphore, cacheValue, CurrentDateTime);
+            }         
+
 
             async Task GetCacheKey()
             {
@@ -103,7 +97,6 @@ namespace Middlewares.FunctionalityHandler
                             await SetCache(CurrentDateTime);
                         }
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -123,7 +116,6 @@ namespace Middlewares.FunctionalityHandler
                     .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
                 _memoryCache.Set(CHACHEKEYNAME, data, cacheEntryOptions);
                 _memoryCache.Set(CHACHEKEYTIME, cacheValue, cacheEntryOptions);
-                await Task.CompletedTask;
             }
 
             async Task GetCache()

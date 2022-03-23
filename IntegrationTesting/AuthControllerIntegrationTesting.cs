@@ -141,7 +141,7 @@ namespace IntegrationTesting
             
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("{\"message\":\"IDX12741: JWT: 'System.String' must have three segments (JWS) or five segments (JWE).\"}", responseString);
+            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"IDX12741: JWT: 'System.String' must have three segments (JWS) or five segments (JWE).\"}", responseString);
         }
         [Fact]
         public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_LifetimeValidationFailed()
@@ -156,7 +156,7 @@ namespace IntegrationTesting
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
 
-            Assert.Equal("{\"message\":\"IDX10223: Lifetime validation failed. The token is expired. ValidTo: 'System.DateTime', Current time: 'System.DateTime'.\"}", responseString);
+            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"IDX10223: Lifetime validation failed. The token is expired. ValidTo: 'System.DateTime', Current time: 'System.DateTime'.\"}", responseString);
         }
         [Fact]
         public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_SignatureValidationFailed()
@@ -170,7 +170,7 @@ namespace IntegrationTesting
 
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("{\"message\":\"IDX10503: Signature validation failed. Keys tried: 'System.Text.StringBuilder'.\\nExceptions caught:\\n 'System.Text.StringBuilder'.\\ntoken: 'System.IdentityModel.Tokens.Jwt.JwtSecurityToken'.\"}", responseString);
+            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"IDX10503: Signature validation failed. Keys tried: 'System.Text.StringBuilder'.\\nExceptions caught:\\n 'System.Text.StringBuilder'.\\ntoken: 'System.IdentityModel.Tokens.Jwt.JwtSecurityToken'.\"}", responseString);
         }
         [Fact]
         public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_UnableToDecodeHeader()
@@ -184,7 +184,7 @@ namespace IntegrationTesting
 
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("{\"message\":\"IDX12729: Unable to decode the header 'System.String' as Base64Url encoded string. jwtEncodedString: 'System.String'.\"}", responseString);
+            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"IDX12729: Unable to decode the header 'System.String' as Base64Url encoded string. jwtEncodedString: 'System.String'.\"}", responseString);
         }
         [Fact]
         public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_TokenDoesNotHaveASignature()
@@ -198,7 +198,7 @@ namespace IntegrationTesting
 
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("{\"message\":\"IDX10504: Unable to validate signature, token does not have a signature: 'System.String'.\"}", responseString);
+            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"IDX10504: Unable to validate signature, token does not have a signature: 'System.String'.\"}", responseString);
         }
         [Fact]
         public async Task RequestWithBearerAuth_BearerCredentialsNotOk_ReturnUnauthorizedWithMessage_UnableToDecodeThePayload()
@@ -212,7 +212,7 @@ namespace IntegrationTesting
 
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("{\"message\":\"IDX12723: Unable to decode the payload 'System.String' as Base64Url encoded string. jwtEncodedString: ''.\"}", responseString);
+            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"IDX12723: Unable to decode the payload 'System.String' as Base64Url encoded string. jwtEncodedString: ''.\"}", responseString);
         }
         [Fact]
         public async Task RequestWithBasicAuth_BasicCredentialsOkOnDisponibilityRange_WrongEndpoint_ReturnUnauthorizedWithMessage_WrongEndpoint()
@@ -226,7 +226,7 @@ namespace IntegrationTesting
 
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("{\"message\":\"Unauthorized User for this endpoint\"}", responseString);
+            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"Unauthorized User for this endpoint\"}", responseString);
         }
         [Fact]
         public async Task RequestWithBearerAuth_BearerCredentialsOkOnDisponibilityRange_WrongEndpoint_ReturnUnauthorizedWithMessage_WrongEndpoint()
@@ -240,7 +240,7 @@ namespace IntegrationTesting
 
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("{\"message\":\"Unauthorized User for this endpoint\"}", responseString);
+            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"Unauthorized User for this endpoint\"}", responseString);
         }
     }
 }

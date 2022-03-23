@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,8 @@ using System.Threading.Tasks;
 namespace Middlewares.ExceptionHandler
 {
     public class ExceptionFilter : IExceptionFilter
-    {
+    {    
+
         public async Task SetStatusCode(HttpContext context, Exception ex)
         {
             var response = context.Response;
@@ -20,7 +22,7 @@ namespace Middlewares.ExceptionHandler
             {
                 case AppException:
                     // custom application error
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;                 
                     break;
                 case UnauthorizedAccessException:
                     // Unauthorized error
@@ -29,6 +31,15 @@ namespace Middlewares.ExceptionHandler
                 case KeyNotFoundException:
                     // not found error
                     response.StatusCode = (int)HttpStatusCode.NotFound;
+                    break;
+                case SecurityTokenExpiredException:
+                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    break;
+                case SecurityTokenInvalidSignatureException:
+                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    break;
+                case ArgumentException:
+                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     break;
                 default:
                     // unhandled error
@@ -41,9 +52,6 @@ namespace Middlewares.ExceptionHandler
                 ErrorMessage = ex.Message
             });
             await context.Response.WriteAsync(result);
-
-
-            //await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = ex.Message }));
         }
     }
 }

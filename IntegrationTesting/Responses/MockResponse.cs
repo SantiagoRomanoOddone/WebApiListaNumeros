@@ -1,13 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace IntegrationTesting.Responses
 {
     public class MockResponse
     {
+        private readonly IHttpClientFactory _clientFactory;
+        public MockResponse(IHttpClientFactory clientFactory)
+        {
+            _clientFactory = clientFactory;
+        }
         public static class SecurityResponse
         {
             public const string RESPONSE_BASIC_OK = "QWRtaW46QWRtaW4xMjM=";
@@ -18,8 +27,7 @@ namespace IntegrationTesting.Responses
             public const string RESPONSE_BEARER_NOTOK_WRONGHEADER = "a.eyJpZCI6IkFkbWluIiwiaW5wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9BdXRoXCJ9IiwibmJmIjoxNjQ3NDM3OTYwLCJleHAiOjE2NDc0ODExNjAsImlhdCI6MTY0NzQzNzk2MCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.RGlAsU4Sxu8PN2-FlNJ_8Zfu_EkXJXDYdGYM1d48VyA";
             public const string RESPONSE_BEARER_NOTOK_NOSIGNATURE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwiaW5wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9BdXRoXCJ9IiwibmJmIjoxNjQ3NDM3OTYwLCJleHAiOjE2NDc0ODExNjAsImlhdCI6MTY0NzQzNzk2MCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.";
             public const string RESPONSE_BEARER_NOTOK_WRONGPAYLOAD = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.a.RGlAsU4Sxu8PN2-FlNJ_8Zfu_EkXJXDYdGYM1d48VyA";
-            public const string RESPONSE_BEARER_OK = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwiaW5wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9BdXRoXCJ9IiwibmJmIjoxNjQ3OTUxMTc0LCJleHAiOjE2NDc5OTQzNzQsImlhdCI6MTY0Nzk1MTE3NCwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.Q2EoFdPoeo2IghgjCWUY4G5zu4_FOXbBASuCn-dfv5o";
-
+            public const string RESPONSE_BEARER_OK = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkFkbWluIiwiaW5wdXQtYm9keSI6IntcIm1ldGhvZFwiOlwiUE9TVFwiLFwiY2hhbm5lbFwiOlwic3VjdXJzYWxcIixcInBhdGhcIjpcIi92MS9taW5pcG9tcG9tL2p3dC9BdXRoXCJ9IiwibmJmIjoxNjQ4MDQ4NTI3LCJleHAiOjE2NDgwOTE3MjcsImlhdCI6MTY0ODA0ODUyNywiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzOTMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo0NDM4OCJ9.u0qQZsa-68-TvwSOJPIMpwhXn9oozfTdO3JxtSA8lQ8";
         }
     }
 }
