@@ -46,7 +46,6 @@ namespace Middlewares.SecurityDisponibilityHandler
                 {
                     throw new UnauthorizedAccessException("Email or password is incorrect");
                 }
-                await Task.CompletedTask;
             }
 
             async Task BearerSecurityResponseAsync()
@@ -69,9 +68,6 @@ namespace Middlewares.SecurityDisponibilityHandler
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;               
-                await Task.CompletedTask;
-                //TODO: VER
-                //await Task.FromResult(jwtToken);
             }
         }       
     }

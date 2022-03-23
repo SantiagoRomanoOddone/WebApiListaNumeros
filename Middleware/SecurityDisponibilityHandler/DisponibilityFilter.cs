@@ -21,7 +21,6 @@ namespace Middlewares.SecurityDisponibilityHandler
             {
                 throw new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm");
             }
-            await Task.CompletedTask;
         }
     }
 }

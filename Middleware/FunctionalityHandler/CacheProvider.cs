@@ -63,44 +63,38 @@ namespace Middlewares.FunctionalityHandler
 
             async Task FunctionalityResponseAsync(SemaphoreSlim semaphore, DateTime cacheValue, DateTime CurrentDateTime)
             {
-                try
+                await semaphore.WaitAsync();
+                //Recheck
+                bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue);
+                if (isAvaiable && CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
                 {
-                    await semaphore.WaitAsync();
-                    //Recheck
-                    bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue);
-                    if (isAvaiable && CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
+                    await GetCache();
+                }
+                else
+                {
+                    var uri = new Uri("http://localhost:8080/");
+                    var client = _clientFactory.CreateClient();
+                    var request = new HttpRequestMessage
+                    (
+                    HttpMethod.Get,
+                    $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
+                    var response = await client.SendAsync(request);
+                    if (!response.IsSuccessStatusCode && !_memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue))
+                    {
+                        throw new Exception("Something Went Wrong! Error Ocurred");
+                    }
+                    if (!response.IsSuccessStatusCode)
                     {
                         await GetCache();
                     }
                     else
                     {
-                        var uri = new Uri("http://localhost:8080/");
-                        var client = _clientFactory.CreateClient();
-                        var request = new HttpRequestMessage
-                        (
-                        HttpMethod.Get,
-                        $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
-                        var response = await client.SendAsync(request);
-                        if (response == null && !_memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue))
-                        {
-                            throw new Exception("Something Went Wrong! Error Ocurred");
-                        }
-                        if (response == null)
-                        {
-                            await GetCache();
-                        }
-                        else
-                        {
-                            var responseBody = await response.Content.ReadAsStringAsync();
-                            context.Items.Add("functionality-response", responseBody);
-                            await SetCache(CurrentDateTime);
-                        }
-                    }
+                        var responseBody = await response.Content.ReadAsStringAsync();
+                        context.Items.Add("functionality-response", responseBody);
+                        await SetCache(CurrentDateTime);
+                    }                   
                 }
-                finally
-                {
-                    semaphore.Release();
-                }
+                semaphore.Release();
             }
 
             async Task SetCache(DateTime CurrentDateTime)
