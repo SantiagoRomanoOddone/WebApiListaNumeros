@@ -18,7 +18,7 @@ namespace Middlewares.SecurityDisponibilityHandler
 {
     public class SecurityFilter : ISecurityFilter
     {       
-        public async Task SecurityCheck(HttpContext context)
+        public async Task SecurityCheckAsync(HttpContext context)
         {
             var user = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
 

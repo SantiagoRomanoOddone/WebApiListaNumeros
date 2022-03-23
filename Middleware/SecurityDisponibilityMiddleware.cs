@@ -32,8 +32,8 @@ namespace Middlewares
         public async Task InvokeAsync(HttpContext context)
         {
             await Task.WhenAll(
-                _disponibilityFilter.DisponibilityCheck(context),
-                _securityFilter.SecurityCheck(context));
+                _disponibilityFilter.DisponibilityCheckAsync(context),
+                _securityFilter.SecurityCheckAsync(context));
 
             await _next.Invoke(context);
         }              

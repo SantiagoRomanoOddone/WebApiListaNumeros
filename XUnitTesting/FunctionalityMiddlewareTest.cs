@@ -40,7 +40,7 @@ namespace XUnitTesting
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/list";
 
-            _cacheprovider.Setup(x => x.FunctionalityCheck(_context))
+            _cacheprovider.Setup(x => x.FunctionalityCheckAsync(_context))
                 .Returns(Task.CompletedTask);
 
             var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _cacheprovider.Object);
@@ -58,7 +58,7 @@ namespace XUnitTesting
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/WRONGPATH";
 
-            _cacheprovider.Setup(x => x.FunctionalityCheck(_context))
+            _cacheprovider.Setup(x => x.FunctionalityCheckAsync(_context))
                 .Returns(Task.FromException(new ArgumentNullException()));
 
             var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _cacheprovider.Object);

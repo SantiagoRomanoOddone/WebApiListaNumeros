@@ -9,6 +9,6 @@ namespace Middlewares.SecurityDisponibilityHandler
 {
     public interface IDisponibilityFilter
     {
-        Task DisponibilityCheck(HttpContext context);
+        Task DisponibilityCheckAsync(HttpContext context);
     }
 }

@@ -11,7 +11,7 @@ namespace Middlewares.SecurityDisponibilityHandler
 {
     public class DisponibilityFilter : IDisponibilityFilter
     {
-        public async Task DisponibilityCheck(HttpContext context)
+        public async Task DisponibilityCheckAsync(HttpContext context)
         {
             Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
             string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);

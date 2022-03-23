@@ -28,7 +28,7 @@ namespace XUnitTesting
             //Act
             var securityFilter = new SecurityFilter();
 
-            Func<Task> function = async () => { await securityFilter.SecurityCheck(_context); };
+            Func<Task> function = async () => { await securityFilter.SecurityCheckAsync(_context); };
 
             //Assert
             Assert.NotNull(function);
@@ -42,7 +42,7 @@ namespace XUnitTesting
 
             var securityFilter = new SecurityFilter();
 
-            Func<Task> function = async () => { await securityFilter.SecurityCheck(_context); };
+            Func<Task> function = async () => { await securityFilter.SecurityCheckAsync(_context); };
 
             Assert.NotNull(function);
             function.Should().Throw<Exception>();
@@ -55,7 +55,7 @@ namespace XUnitTesting
 
             var securityFilter = new SecurityFilter();
 
-            Func<Task> function = async () => { await securityFilter.SecurityCheck(_context); };
+            Func<Task> function = async () => { await securityFilter.SecurityCheckAsync(_context); };
 
             Assert.NotNull(function);
             function.Should().Throw<Exception>();
@@ -68,7 +68,7 @@ namespace XUnitTesting
 
             var securityFilter = new SecurityFilter();
 
-            Func<Task> function = async () => { await securityFilter.SecurityCheck(_context); };
+            Func<Task> function = async () => { await securityFilter.SecurityCheckAsync(_context); };
 
             Assert.NotNull(function);
             function.Should().NotThrow<Exception>();

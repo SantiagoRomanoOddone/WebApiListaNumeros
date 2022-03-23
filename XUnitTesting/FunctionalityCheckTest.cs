@@ -54,7 +54,7 @@ namespace XUnitTesting
             //Act
             var cacheProvider = new CacheProvider(_clientFactory.Object, _memoryCache.Object);
 
-            Func<Task> function = async () => { await cacheProvider.FunctionalityCheck(_context); };
+            Func<Task> function = async () => { await cacheProvider.FunctionalityCheckAsync(_context); };
 
             //Assert
             Assert.NotNull(function);
@@ -84,7 +84,7 @@ namespace XUnitTesting
 
             var cacheProvider = new CacheProvider(_clientFactory.Object, _memoryCache.Object);
 
-            Func<Task> function = async () => { await cacheProvider.FunctionalityCheck(_context); };
+            Func<Task> function = async () => { await cacheProvider.FunctionalityCheckAsync(_context); };
 
             //Assert
             Assert.NotNull(function);

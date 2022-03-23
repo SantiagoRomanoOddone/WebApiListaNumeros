@@ -37,9 +37,9 @@ namespace XUnitTesting
         public async Task SecurityDisponibilityMiddlewareTest_DisponibilityTest_Should_ThrowException()
         {
            
-            _securityFilter.Setup(repo => repo.SecurityCheck(_context))
+            _securityFilter.Setup(repo => repo.SecurityCheckAsync(_context))
                 .Returns(Task.CompletedTask);            
-            _disponibilityFilter.Setup(repo => repo.DisponibilityCheck(_context))
+            _disponibilityFilter.Setup(repo => repo.DisponibilityCheckAsync(_context))
                 .Returns(Task.FromException(new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm")));
 
             var SecurityDisponibilityMiddleware = new SecurityDisponibilityMiddleware(_next.Object, _disponibilityFilter.Object, _securityFilter.Object);
@@ -54,9 +54,9 @@ namespace XUnitTesting
         public async Task SecurityDisponibilityMiddlewareTest_SecurityTest_Should_ThrowException()
         {
 
-            _securityFilter.Setup(repo => repo.SecurityCheck(_context))
+            _securityFilter.Setup(repo => repo.SecurityCheckAsync(_context))
                 .Returns(Task.FromException(new UnauthorizedAccessException()));               
-            _disponibilityFilter.Setup(repo => repo.DisponibilityCheck(_context))
+            _disponibilityFilter.Setup(repo => repo.DisponibilityCheckAsync(_context))
                 .Returns(Task.CompletedTask);
             var SecurityDisponibilityMiddleware = new SecurityDisponibilityMiddleware(_next.Object, _disponibilityFilter.Object, _securityFilter.Object);
 
@@ -70,9 +70,9 @@ namespace XUnitTesting
         public async Task SecurityDisponibilityMiddlewareTest_Should_InvokeNext()
         {
 
-            _securityFilter.Setup(repo => repo.SecurityCheck(_context))
+            _securityFilter.Setup(repo => repo.SecurityCheckAsync(_context))
                 .Returns(Task.CompletedTask);
-            _disponibilityFilter.Setup(repo => repo.DisponibilityCheck(_context))
+            _disponibilityFilter.Setup(repo => repo.DisponibilityCheckAsync(_context))
                 .Returns(Task.CompletedTask);
             var SecurityDisponibilityMiddleware = new SecurityDisponibilityMiddleware(_next.Object, _disponibilityFilter.Object, _securityFilter.Object);
 

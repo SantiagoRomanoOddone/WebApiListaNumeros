@@ -25,7 +25,7 @@ namespace XUnitTesting
             _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_OK;
             var disponibilityFilter = new DisponibilityFilter();
 
-            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheck(_context); };
+            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheckAsync(_context); };
 
             Assert.NotNull(function);
             function.Should().NotThrow<Exception>();
@@ -37,7 +37,7 @@ namespace XUnitTesting
             _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_NOT_OK;
             var disponibilityFilter = new DisponibilityFilter();
 
-            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheck(_context); };
+            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheckAsync(_context); };
 
             Assert.NotNull(function);
             function.Should().Throw<Exception>();

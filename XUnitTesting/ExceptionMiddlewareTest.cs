@@ -32,7 +32,7 @@ namespace XUnitTesting
         {
             var expectedException = new AppException();
 
-            _exceptionFilter.Setup(repo => repo.SetStatusCode(_context, expectedException))
+            _exceptionFilter.Setup(repo => repo.SetStatusCodeAsync(_context, expectedException))
                .Returns(Task.FromException(expectedException));
     
             _next.SetReturnsDefault(Task.FromException(expectedException));
@@ -49,7 +49,7 @@ namespace XUnitTesting
         {
             var expectedException1 = new UnauthorizedAccessException();
 
-            _exceptionFilter.Setup(repo => repo.SetStatusCode(_context, expectedException1))
+            _exceptionFilter.Setup(repo => repo.SetStatusCodeAsync(_context, expectedException1))
                .Returns(Task.FromException(expectedException1));
 
             _next.SetReturnsDefault(Task.FromException(expectedException1));
@@ -66,7 +66,7 @@ namespace XUnitTesting
         {
             var expectedException2 = new KeyNotFoundException();
 
-            _exceptionFilter.Setup(repo => repo.SetStatusCode(_context, expectedException2))
+            _exceptionFilter.Setup(repo => repo.SetStatusCodeAsync(_context, expectedException2))
                .Returns(Task.FromException(expectedException2));
 
             _next.SetReturnsDefault(Task.FromException(expectedException2));
@@ -83,7 +83,7 @@ namespace XUnitTesting
         {
             var expectedException3 = new ArgumentNullException();
 
-            _exceptionFilter.Setup(repo => repo.SetStatusCode(_context, expectedException3))
+            _exceptionFilter.Setup(repo => repo.SetStatusCodeAsync(_context, expectedException3))
                .Returns(Task.FromException(expectedException3));
 
             _next.SetReturnsDefault(Task.FromException(expectedException3));

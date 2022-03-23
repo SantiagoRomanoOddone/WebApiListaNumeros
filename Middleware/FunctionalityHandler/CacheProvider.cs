@@ -24,11 +24,12 @@ namespace Middlewares.FunctionalityHandler
             _memoryCache = memoryCache;
         }
 
-        public async Task FunctionalityCheck(HttpContext context)
+        public async Task FunctionalityCheckAsync(HttpContext context)
         {
             SemaphoreSlim GetUsersSemaphore = new SemaphoreSlim(1, 1);
-            await GetCacheKey();
             var CurrentDateTime = DateTime.Now;
+
+            await GetCacheKey();          
             bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue);
             if (isAvaiable)
             {
@@ -45,7 +46,6 @@ namespace Middlewares.FunctionalityHandler
             {
                 await FunctionalityResponseAsync(GetUsersSemaphore, cacheValue, CurrentDateTime);
             }         
-
 
             async Task GetCacheKey()
             {

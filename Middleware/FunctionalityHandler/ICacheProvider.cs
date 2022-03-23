@@ -9,6 +9,6 @@ namespace Middlewares.FunctionalityHandler
 {
     public interface ICacheProvider
     {
-        Task FunctionalityCheck(HttpContext context);
+        Task FunctionalityCheckAsync(HttpContext context);
     }
 }

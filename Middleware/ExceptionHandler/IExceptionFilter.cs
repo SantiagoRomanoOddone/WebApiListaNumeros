@@ -9,6 +9,6 @@ namespace Middlewares.ExceptionHandler
 {
     public interface IExceptionFilter
     {
-        Task SetStatusCode(HttpContext context, Exception ex);
+        Task SetStatusCodeAsync(HttpContext context, Exception ex);
     }
 }
