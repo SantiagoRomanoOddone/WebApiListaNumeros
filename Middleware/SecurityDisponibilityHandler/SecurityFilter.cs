@@ -20,13 +20,13 @@ namespace Middlewares.SecurityDisponibilityHandler
     {       
         public async Task SecurityCheckAsync(HttpContext context)
         {
-            var user = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First();
+            var user = context.Request.Headers["Authorization"];
 
-            if (context.Request.Path == "/v1/minipompom/basic/list" && user == "Basic")
+            if (context.Request.Path == "/v1/minipompom/basic/list" && user.FirstOrDefault()?.Split(" ").First() == "Basic")
             {
                 await BasicSecurityResponseAsync();
             }
-            else if (context.Request.Path == "/v1/minipompom/jwt/list" && user == "Bearer")
+            else if (context.Request.Path == "/v1/minipompom/jwt/list" && user.FirstOrDefault()?.Split(" ").First() == "Bearer")
             {
                 await BearerSecurityResponseAsync();
             }
@@ -37,7 +37,7 @@ namespace Middlewares.SecurityDisponibilityHandler
 
             async Task BasicSecurityResponseAsync()
             {
-                string auth = context.Request.Headers["Authorization"].ToString().Split(new char[] { ' ' })[1];
+                string auth = user.ToString().Split(new char[] { ' ' })[1];
                 Encoding encoding = Encoding.GetEncoding("UTF-8");
                 var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
                 string username = usernameAndPassword.Split(new char[] { ':' })[0];
@@ -50,7 +50,7 @@ namespace Middlewares.SecurityDisponibilityHandler
 
             async Task BearerSecurityResponseAsync()
             {
-                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                var token = user.FirstOrDefault()?.Split(" ").Last();
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(Constant.Bearer.KEY);
 
