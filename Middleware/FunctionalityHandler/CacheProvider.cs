@@ -33,7 +33,7 @@ namespace Middlewares.FunctionalityHandler
             bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue);
             if (isAvaiable)
             {
-                if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:01").TimeOfDay)
+                if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
                 {
                     await GetCache();
                 }
@@ -66,7 +66,7 @@ namespace Middlewares.FunctionalityHandler
                 await semaphore.WaitAsync();
                 //Recheck
                 bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue);
-                if (isAvaiable && CurrentDateTime < cacheValue + Convert.ToDateTime("00:01").TimeOfDay)
+                if (isAvaiable && CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
                 {
                     await GetCache();
                 }
