@@ -32,7 +32,9 @@ namespace WebApiListaNumeros
         public void ConfigureServices(IServiceCollection services)
         {          
             services.AddMemoryCache();
+
             services.AddControllers();
+
             services.AddHttpClient();
 
             services.AddSingleton<IExceptionFilter, ExceptionFilter>();

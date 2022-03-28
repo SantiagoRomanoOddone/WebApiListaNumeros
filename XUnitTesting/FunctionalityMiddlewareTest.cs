@@ -54,9 +54,9 @@ namespace XUnitTesting
         [Fact]
         public async Task RequestWithWrongPath_ReturFunctionalityException()
         {
-            _context.Request.Headers["Channel"] = "sucursal";
+            _context.Request.Headers["Channel"] = "mocknotfound";
             _context.Request.Method = "GET";
-            _context.Request.Path = "/v1/minipompom/basic/WRONGPATH";
+            _context.Request.Path = "/v1/minipompom/basic/list";
 
             _cacheprovider.Setup(x => x.FunctionalityCheckAsync(_context))
                 .Returns(Task.FromException(new ArgumentNullException()));

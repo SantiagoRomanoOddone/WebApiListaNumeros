@@ -37,7 +37,6 @@ namespace IntegrationTesting
 
             // Act
             var response = await _client.GetAsync("v1/minipompom/basic/list");
-            response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();
 
             // Assert         
@@ -65,7 +64,6 @@ namespace IntegrationTesting
 
             // Act
             var response = await _client.GetAsync("v1/minipompom/jwt/list");
-            response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();
 
             // Assert         

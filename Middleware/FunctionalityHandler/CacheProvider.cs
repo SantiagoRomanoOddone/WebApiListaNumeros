@@ -18,6 +18,7 @@ namespace Middlewares.FunctionalityHandler
         public string CHACHEKEYNAME;
         private readonly IMemoryCache _memoryCache;
         private readonly IHttpClientFactory _clientFactory;
+        private static readonly SemaphoreSlim GetResponseSemaphore = new SemaphoreSlim(1, 1);
         public CacheProvider(IHttpClientFactory clientFactory, IMemoryCache memoryCache)
         {
             _clientFactory = clientFactory;
@@ -26,9 +27,8 @@ namespace Middlewares.FunctionalityHandler
 
         public async Task FunctionalityCheckAsync(HttpContext context)
         {
-            SemaphoreSlim GetUsersSemaphore = new SemaphoreSlim(1, 1);
-            var CurrentDateTime = DateTime.Now;
-
+            await GetResponseSemaphore.WaitAsync();
+            var CurrentDateTime = DateTime.Now;           
             await GetCacheKey();          
             bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue);
             if (isAvaiable)
@@ -39,13 +39,15 @@ namespace Middlewares.FunctionalityHandler
                 }
                 else
                 {
-                    await FunctionalityResponseAsync(GetUsersSemaphore, CurrentDateTime);
+                    await FunctionalityResponseAsync(CurrentDateTime);
                 }
             }
             else
             {
-                await FunctionalityResponseAsync(GetUsersSemaphore, CurrentDateTime);
-            }         
+                await FunctionalityResponseAsync( CurrentDateTime);
+            }
+            GetResponseSemaphore.Release();
+
 
             async Task GetCacheKey()
             {
@@ -61,9 +63,8 @@ namespace Middlewares.FunctionalityHandler
                 }
             }
 
-            async Task FunctionalityResponseAsync(SemaphoreSlim semaphore, DateTime CurrentDateTime)
+            async Task FunctionalityResponseAsync(DateTime CurrentDateTime)
             {
-                await semaphore.WaitAsync();
                 //Recheck
                 bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue);
                 if (isAvaiable && CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
@@ -94,7 +95,6 @@ namespace Middlewares.FunctionalityHandler
                         await SetCache(CurrentDateTime);
                     }                   
                 }
-                semaphore.Release();
             }
 
             async Task SetCache(DateTime CurrentDateTime)
@@ -105,14 +105,12 @@ namespace Middlewares.FunctionalityHandler
                     .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
                 _memoryCache.Set(CHACHEKEYNAME, data, cacheEntryOptions);
                 _memoryCache.Set(CHACHEKEYTIME, cacheValue, cacheEntryOptions);
-                await Task.CompletedTask;
             }
 
             async Task GetCache()
             {
                 var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CHACHEKEYNAME));
                 context.Items.Add("functionality-response", cachedata);
-                await Task.CompletedTask;
             }          
         }
     }
