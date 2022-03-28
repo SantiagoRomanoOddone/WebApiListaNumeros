@@ -33,18 +33,18 @@ namespace Middlewares.FunctionalityHandler
             bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out DateTime cacheValue);
             if (isAvaiable)
             {
-                if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
+                if (CurrentDateTime < cacheValue + Convert.ToDateTime("00:01").TimeOfDay)
                 {
                     await GetCache();
                 }
                 else
                 {
-                    await FunctionalityResponseAsync(GetUsersSemaphore, cacheValue, CurrentDateTime);
+                    await FunctionalityResponseAsync(GetUsersSemaphore, CurrentDateTime);
                 }
             }
             else
             {
-                await FunctionalityResponseAsync(GetUsersSemaphore, cacheValue, CurrentDateTime);
+                await FunctionalityResponseAsync(GetUsersSemaphore, CurrentDateTime);
             }         
 
             async Task GetCacheKey()
@@ -61,12 +61,12 @@ namespace Middlewares.FunctionalityHandler
                 }
             }
 
-            async Task FunctionalityResponseAsync(SemaphoreSlim semaphore, DateTime cacheValue, DateTime CurrentDateTime)
+            async Task FunctionalityResponseAsync(SemaphoreSlim semaphore, DateTime CurrentDateTime)
             {
                 await semaphore.WaitAsync();
                 //Recheck
                 bool isAvaiable = _memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue);
-                if (isAvaiable && CurrentDateTime < cacheValue + Convert.ToDateTime("00:10").TimeOfDay)
+                if (isAvaiable && CurrentDateTime < cacheValue + Convert.ToDateTime("00:01").TimeOfDay)
                 {
                     await GetCache();
                 }
@@ -78,8 +78,8 @@ namespace Middlewares.FunctionalityHandler
                     (
                     HttpMethod.Get,
                     $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
-                    var response = await client.SendAsync(request);
-                    if (!response.IsSuccessStatusCode && !_memoryCache.TryGetValue(CHACHEKEYTIME, out cacheValue))
+                    var response = await client.SendAsync(request);                   
+                    if (!response.IsSuccessStatusCode && isAvaiable == false)
                     {
                         throw new Exception("Something Went Wrong! Error Ocurred");
                     }
@@ -105,12 +105,14 @@ namespace Middlewares.FunctionalityHandler
                     .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
                 _memoryCache.Set(CHACHEKEYNAME, data, cacheEntryOptions);
                 _memoryCache.Set(CHACHEKEYTIME, cacheValue, cacheEntryOptions);
+                await Task.CompletedTask;
             }
 
             async Task GetCache()
             {
                 var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(CHACHEKEYNAME));
                 context.Items.Add("functionality-response", cachedata);
+                await Task.CompletedTask;
             }          
         }
     }
