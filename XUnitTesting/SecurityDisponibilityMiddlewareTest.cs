@@ -2,18 +2,13 @@
 using Middlewares;
 using Middlewares.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using System.IO;
 using Moq;
 using Middlewares.SecurityDisponibilityHandler;
-using System.Net;
+using Newtonsoft.Json;
+using XUnitTesting.Responses;
 
 namespace XUnitTesting
 {
@@ -24,6 +19,7 @@ namespace XUnitTesting
         Mock<ISecurityFilter> _securityFilter;
         Mock<IDisponibilityFilter> _disponibilityFilter;
         DefaultHttpContext _context;
+        Mock<Root> _root;
 
         public SecurityDisponibilityMiddlewareTest()
         {
@@ -31,14 +27,17 @@ namespace XUnitTesting
             _next = new Mock<RequestDelegate>();
             _securityFilter = new Mock<ISecurityFilter>();
             _disponibilityFilter = new Mock<IDisponibilityFilter>();
-        }       
+        }
 
         [Fact]
         public async Task SecurityDisponibilityMiddlewareTest_DisponibilityTest_Should_ThrowException()
         {
-           
+
+            _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_NOT_OK;
+            _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
+
             _securityFilter.Setup(repo => repo.SecurityCheckAsync(_context))
-                .Returns(Task.CompletedTask);            
+                .Returns(Task.CompletedTask);
             _disponibilityFilter.Setup(repo => repo.DisponibilityCheckAsync(_context))
                 .Returns(Task.FromException(new UnauthorizedAccessException("Unauthorized! Only Weekdays from 8 am to 10 pm")));
 
@@ -53,9 +52,10 @@ namespace XUnitTesting
         [Fact]
         public async Task SecurityDisponibilityMiddlewareTest_SecurityTest_Should_ThrowException()
         {
-
+            _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_OK;
+            _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_NOTOK;
             _securityFilter.Setup(repo => repo.SecurityCheckAsync(_context))
-                .Returns(Task.FromException(new UnauthorizedAccessException()));               
+                .Returns(Task.FromException(new UnauthorizedAccessException()));
             _disponibilityFilter.Setup(repo => repo.DisponibilityCheckAsync(_context))
                 .Returns(Task.CompletedTask);
             var SecurityDisponibilityMiddleware = new SecurityDisponibilityMiddleware(_next.Object, _disponibilityFilter.Object, _securityFilter.Object);
@@ -69,7 +69,8 @@ namespace XUnitTesting
         [Fact]
         public async Task SecurityDisponibilityMiddlewareTest_Should_InvokeNext()
         {
-
+            _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_OK;
+            _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
             _securityFilter.Setup(repo => repo.SecurityCheckAsync(_context))
                 .Returns(Task.CompletedTask);
             _disponibilityFilter.Setup(repo => repo.DisponibilityCheckAsync(_context))

@@ -1,18 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Middlewares.ExceptionHandler;
-using Middlewares.Models;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Middlewares.Auxiliaries;
-using System.Net;
+using Middlewares.Models;
+using Newtonsoft.Json;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
@@ -20,55 +15,53 @@ namespace Middlewares.SecurityDisponibilityHandler
     {       
         public async Task SecurityCheckAsync(HttpContext context)
         {
-            var user = context.Request.Headers["Authorization"];
-
-            if (context.Request.Path == "/v1/minipompom/basic/list" && user.FirstOrDefault()?.Split(" ").First() == "Basic")
+            Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
+            if (response.data.config.security.scopelevel == "basic")
             {
-                await BasicSecurityResponseAsync();
+                await BasicSecurityCheckAsync(context);
             }
-            else if (context.Request.Path == "/v1/minipompom/jwt/list" && user.FirstOrDefault()?.Split(" ").First() == "Bearer")
+            else if (response.data.config.security.scopelevel == "jwt" )
             {
-                await BearerSecurityResponseAsync();
+                await BearerSecurityCheckAsync(context);
             }
             else
             {
                 throw new UnauthorizedAccessException("Unauthorized User for this endpoint");
             }
+        } 
 
-            async Task BasicSecurityResponseAsync()
+        private async Task BasicSecurityCheckAsync(HttpContext context)
+        {
+            string auth = context.Request.Headers["Authorization"].ToString().Split(new char[] { ' ' })[1];
+            Encoding encoding = Encoding.GetEncoding("UTF-8");
+            var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
+            string username = usernameAndPassword.Split(new char[] { ':' })[0];
+            string password = usernameAndPassword.Split(new char[] { ':' })[1];
+            if (username != Constant.Basic.USER || password != Constant.Basic.PASSWORD)
             {
-                string auth = user.ToString().Split(new char[] { ' ' })[1];
-                Encoding encoding = Encoding.GetEncoding("UTF-8");
-                var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
-                string username = usernameAndPassword.Split(new char[] { ':' })[0];
-                string password = usernameAndPassword.Split(new char[] { ':' })[1];
-                if (username != "Admin" || password != "Admin123")
-                {
-                    throw new UnauthorizedAccessException("Email or password is incorrect");
-                }
+                throw new UnauthorizedAccessException("Email or password is incorrect");
             }
+        }
+        private async Task BearerSecurityCheckAsync(HttpContext context)
+        {
+            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(Constant.Bearer.KEY);
 
-            async Task BearerSecurityResponseAsync()
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
-                var token = user.FirstOrDefault()?.Split(" ").Last();
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(Constant.Bearer.KEY);
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = Constant.ISSUER,
+                ValidAudience = Constant.AUDIENCE,
+                // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+                ClockSkew = TimeSpan.Zero
+            }, out SecurityToken validatedToken);
 
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidIssuer = Constant.ISSUER,
-                    ValidAudience = Constant.AUDIENCE,
-                    // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
-
-                var jwtToken = (JwtSecurityToken)validatedToken;
-                var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;               
-            }
-        }       
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
+        }
     }
 }

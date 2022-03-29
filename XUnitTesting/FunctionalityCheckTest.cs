@@ -1,17 +1,12 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Middlewares.FunctionalityHandler;
-using Middlewares.Models;
 using Moq;
 using Moq.Protected;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -39,7 +34,9 @@ namespace XUnitTesting
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/list";
+            _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
 
+            Environment.SetEnvironmentVariable("urlMock", "http://localhost:8080/");
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -66,7 +63,9 @@ namespace XUnitTesting
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/list";
+            _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
 
+            Environment.SetEnvironmentVariable("urlMock", "http://localhost:8080/");
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockHttpMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())

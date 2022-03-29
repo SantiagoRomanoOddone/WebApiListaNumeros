@@ -1,13 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Middlewares.FunctionalityHandler;
-using Middlewares.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Middlewares
@@ -24,9 +17,16 @@ namespace Middlewares
         }
         public async Task InvokeAsync(HttpContext context)
         {
-            await _cacheProvider.FunctionalityCheckAsync(context);
+            try
+            {
+                await _cacheProvider.FunctionalityCheckAsync(context);
 
-            await _next.Invoke(context);          
+                await _next.Invoke(context);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }                  
         }
 
     }

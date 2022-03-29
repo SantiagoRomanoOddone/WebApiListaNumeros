@@ -1,22 +1,12 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Primitives;
 using Middlewares;
 using Middlewares.FunctionalityHandler;
 using Moq;
-using Moq.Protected;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using XUnitTesting.Responses;
 
 namespace XUnitTesting
 {
@@ -38,6 +28,7 @@ namespace XUnitTesting
         {
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
+            _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
             _context.Request.Path = "/v1/minipompom/basic/list";
 
             _cacheprovider.Setup(x => x.FunctionalityCheckAsync(_context))
@@ -56,6 +47,7 @@ namespace XUnitTesting
         {
             _context.Request.Headers["Channel"] = "mocknotfound";
             _context.Request.Method = "GET";
+            _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
             _context.Request.Path = "/v1/minipompom/basic/list";
 
             _cacheprovider.Setup(x => x.FunctionalityCheckAsync(_context))

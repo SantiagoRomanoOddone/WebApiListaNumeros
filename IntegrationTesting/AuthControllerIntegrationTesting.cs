@@ -28,10 +28,11 @@ namespace IntegrationTesting
             _server = new TestServer(new WebHostBuilder()
                .UseStartup<Startup>());
             _client = _server.CreateClient();
+            Environment.SetEnvironmentVariable("urlMock", "http://localhost:8080/");
         }
         [Fact]
         public async Task RequestWithBasicAuth_BasicCredentialsOkOnDisponibilityRange_ReturnOk()
-        {
+        {            
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_OK);
             _client.DefaultRequestHeaders.Add("channel", "sucursal");
 
@@ -73,7 +74,6 @@ namespace IntegrationTesting
         [Fact]
         public async Task RequestWithBearerAuth_BearerCredentialsNotOkOnDisponibilityRange_ReturnUnauthorized()
         {
-
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_NOTOK);
             _client.DefaultRequestHeaders.Add("channel", "sucursal");
 
@@ -211,34 +211,6 @@ namespace IntegrationTesting
             // Assert                    
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
             Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"IDX12723: Unable to decode the payload 'System.String' as Base64Url encoded string. jwtEncodedString: ''.\"}", responseString);
-        }
-        [Fact]
-        public async Task RequestWithBasicAuth_BasicCredentialsOkOnDisponibilityRange_WrongEndpoint_ReturnUnauthorizedWithMessage_WrongEndpoint()
-        {
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", MockResponse.SecurityResponse.RESPONSE_BASIC_OK);
-            _client.DefaultRequestHeaders.Add("channel", "sucursal");
-
-            // Act
-            var response = await _client.GetAsync("v1/minipompom/jwt/list");
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            // Assert                    
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"Unauthorized User for this endpoint\"}", responseString);
-        }
-        [Fact]
-        public async Task RequestWithBearerAuth_BearerCredentialsOkOnDisponibilityRange_WrongEndpoint_ReturnUnauthorizedWithMessage_WrongEndpoint()
-        {
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", MockResponse.SecurityResponse.RESPONSE_BEARER_OK);
-            _client.DefaultRequestHeaders.Add("channel", "sucursal");
-
-            // Act
-            var response = await _client.GetAsync("v1/minipompom/basic/list");
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            // Assert                    
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Equal("{\"StatusCode\":401,\"ErrorMessage\":\"Unauthorized User for this endpoint\"}", responseString);
         }
     }
 }

@@ -23,6 +23,7 @@ namespace XUnitTesting
         public async Task SecurityCheckTest_Basic_Should_NotThrowException()
         {
             //Arrange
+            _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_OK;
             _context.Request.Path = "/v1/minipompom/basic/list";
             _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
             //Act
@@ -37,6 +38,7 @@ namespace XUnitTesting
         [Fact]
         public async Task SecurityCheckTest_Basic_Should_ThrowException()
         {
+            _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_OK;
             _context.Request.Path = "/v1/minipompom/basic/list";
             _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_NOTOK;
 
@@ -50,6 +52,7 @@ namespace XUnitTesting
         [Fact]
         public async Task SecurityCheckTest_Bearer_Should_ThrowException()
         {
+            _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_BEARER_OK;
             _context.Request.Path = "/v1/minipompom/jwt/list";
             _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BEARER_NOTOK;
 
@@ -63,6 +66,7 @@ namespace XUnitTesting
         [Fact]
         public async Task SecurityCheckTest_Bearer_Should_NotThrowException()
         {
+            _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_BEARER_OK;
             _context.Request.Path = "/v1/minipompom/jwt/list";
             _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BEARER_OK;
 

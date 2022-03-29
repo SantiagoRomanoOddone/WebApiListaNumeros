@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
+using Middlewares.Auxiliaries;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Middlewares.ExceptionHandler
@@ -15,7 +14,7 @@ namespace Middlewares.ExceptionHandler
         public async Task SetStatusCodeAsync(HttpContext context, Exception ex)
         {
             var response = context.Response;
-            response.ContentType = "application/json";
+            response.ContentType = Constant.RESPONSE_CONTENT_TYPE;
 
             switch (ex)
             {

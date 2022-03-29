@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Middlewares": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
