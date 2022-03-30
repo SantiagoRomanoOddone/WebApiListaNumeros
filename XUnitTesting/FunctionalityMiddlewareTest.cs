@@ -26,17 +26,16 @@ namespace XUnitTesting
         [Fact]
         public async Task RequestWithPathOk_ReturNextInvoke()
         {
+            //Arrange
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
             _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
             _context.Request.Path = "/v1/minipompom/basic/list";
-
-            _cacheprovider.Setup(x => x.FunctionalityCheckAsync(_context))
+            _cacheprovider.Setup(x => x.FunctionalityCheckAsync())
                 .Returns(Task.CompletedTask);
 
-            var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _cacheprovider.Object);
-
             //Act
+            var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _cacheprovider.Object);
             Func<Task> function = async () => { await functionalityMiddleware.InvokeAsync(_context); };
 
             //Assert
@@ -45,17 +44,16 @@ namespace XUnitTesting
         [Fact]
         public async Task RequestWithWrongPath_ReturFunctionalityException()
         {
+            //Arrange
             _context.Request.Headers["Channel"] = "mocknotfound";
             _context.Request.Method = "GET";
             _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
             _context.Request.Path = "/v1/minipompom/basic/list";
-
-            _cacheprovider.Setup(x => x.FunctionalityCheckAsync(_context))
+            _cacheprovider.Setup(x => x.FunctionalityCheckAsync())
                 .Returns(Task.FromException(new ArgumentNullException()));
 
-            var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _cacheprovider.Object);
-
             //Act
+            var functionalityMiddleware = new FunctionalityMiddleware(_next.Object, _cacheprovider.Object);           
             Func<Task> function = async () => { await functionalityMiddleware.InvokeAsync(_context); };
 
             //Assert

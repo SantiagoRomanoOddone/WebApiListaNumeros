@@ -7,32 +7,31 @@ using System.Text;
 using System.Threading.Tasks;
 using Middlewares.Auxiliaries;
 using Middlewares.Models;
-using Newtonsoft.Json;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
     public class SecurityFilter : ISecurityFilter
-    {       
-        public async Task SecurityCheckAsync(HttpContext context)
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public SecurityFilter(IHttpContextAccessor httpContextAccessor)
         {
-            Root response = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
+            _httpContextAccessor = httpContextAccessor;
+        }
+        public async Task SecurityCheckAsync(Root response)
+        {
             if (response.data.config.security.scopelevel == "basic")
             {
-                await BasicSecurityCheckAsync(context);
+                await BasicSecurityCheckAsync();
             }
             else if (response.data.config.security.scopelevel == "jwt" )
             {
-                await BearerSecurityCheckAsync(context);
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Unauthorized User for this endpoint");
+                await BearerSecurityCheckAsync();
             }
         } 
-
-        private async Task BasicSecurityCheckAsync(HttpContext context)
+        private async Task BasicSecurityCheckAsync()
         {
-            string auth = context.Request.Headers["Authorization"].ToString().Split(new char[] { ' ' })[1];
+            string auth = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(new char[] { ' ' })[1];
             Encoding encoding = Encoding.GetEncoding("UTF-8");
             var usernameAndPassword = encoding.GetString(Convert.FromBase64String(auth));
             string username = usernameAndPassword.Split(new char[] { ':' })[0];
@@ -42,9 +41,9 @@ namespace Middlewares.SecurityDisponibilityHandler
                 throw new UnauthorizedAccessException("Email or password is incorrect");
             }
         }
-        private async Task BearerSecurityCheckAsync(HttpContext context)
+        private async Task BearerSecurityCheckAsync()
         {
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            var token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Constant.Bearer.KEY);
 

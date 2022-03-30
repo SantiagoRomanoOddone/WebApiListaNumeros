@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Middlewares.Models;
+﻿
 using System.Threading.Tasks;
+using Middlewares.Models;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
     public interface ISecurityFilter
     {       
-        Task SecurityCheckAsync(HttpContext context);
+        Task SecurityCheckAsync(Root response);
     }
 }

@@ -20,21 +20,27 @@ namespace XUnitTesting
         Mock<IMemoryCache> _memoryCache;
         DefaultHttpContext _context;
         Mock<ICacheEntry> _cacheEntry;
+        Mock<IHttpContextAccessor> _httpContextAccessor;
         public FunctionalityCheckTest()
         {
             _clientFactory = new Mock<IHttpClientFactory>();
             _memoryCache = new Mock<IMemoryCache>();
             _context = new DefaultHttpContext();
             _cacheEntry = new Mock<ICacheEntry>();
+            _httpContextAccessor = new Mock<IHttpContextAccessor>();
         }
 
         [Fact]
         public async Task FunctionalityCheckTest_Should_ThrowException()
         {
+            //Arrange
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/list";
             _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
+            _httpContextAccessor.Setup(x => x.HttpContext).Returns(_context);
+            _memoryCache.Setup(m => m.CreateEntry(It.IsAny<object>()))
+            .Returns(_cacheEntry.Object);
 
             Environment.SetEnvironmentVariable("urlMock", "http://localhost:8080/");
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -46,12 +52,11 @@ namespace XUnitTesting
                     Content = new StringContent("{hola}"),
                 });
             var client = new HttpClient(mockHttpMessageHandler.Object);
-            _clientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(client);
+            _clientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(client);           
 
             //Act
-            var cacheProvider = new CacheProvider(_clientFactory.Object, _memoryCache.Object);
-
-            Func<Task> function = async () => { await cacheProvider.FunctionalityCheckAsync(_context); };
+            var cacheProvider = new CacheProvider(_clientFactory.Object, _memoryCache.Object, _httpContextAccessor.Object);
+            Func<Task> function = async () => { await cacheProvider.FunctionalityCheckAsync(); };
 
             //Assert
             Assert.NotNull(function);
@@ -60,10 +65,14 @@ namespace XUnitTesting
         [Fact]
         public async Task FunctionalityCheckTest_Should_NotThrowException()
         {
+            //Arrange
             _context.Request.Headers["Channel"] = "sucursal";
             _context.Request.Method = "GET";
             _context.Request.Path = "/v1/minipompom/basic/list";
-            _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BASIC_OK;
+            _context.Request.Headers["Authorization"] = MockResponses.SecurityResponse.RESPONSE_BEARER_OK;
+            _httpContextAccessor.Setup(x => x.HttpContext).Returns(_context);
+            _memoryCache.Setup(m => m.CreateEntry(It.IsAny<object>()))
+            .Returns(_cacheEntry.Object);
 
             Environment.SetEnvironmentVariable("urlMock", "http://localhost:8080/");
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -74,16 +83,12 @@ namespace XUnitTesting
                     StatusCode = HttpStatusCode.OK,
                     Content = new StringContent(MockResponses.FunctionalityResponse.RESPONSE_OK),
                 });
-
             var client = new HttpClient(mockHttpMessageHandler.Object);
-            _clientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(client);
+            _clientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(client);           
 
-            _memoryCache.Setup(m => m.CreateEntry(It.IsAny<object>()))
-            .Returns(_cacheEntry.Object);
-
-            var cacheProvider = new CacheProvider(_clientFactory.Object, _memoryCache.Object);
-
-            Func<Task> function = async () => { await cacheProvider.FunctionalityCheckAsync(_context); };
+            //Act
+            var cacheProvider = new CacheProvider(_clientFactory.Object, _memoryCache.Object, _httpContextAccessor.Object);
+            Func<Task> function = async () => { await cacheProvider.FunctionalityCheckAsync(); };
 
             //Assert
             Assert.NotNull(function);

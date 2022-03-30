@@ -1,6 +1,9 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Middlewares.Models;
 using Middlewares.SecurityDisponibilityHandler;
+using Moq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,32 +16,38 @@ namespace XUnitTesting
 {
     public class DisponibilityCheckTest
     {
-        DefaultHttpContext _context;
 
-        public DisponibilityCheckTest()
-        {
-            _context = new DefaultHttpContext();
-        }
         [Fact]
         public async Task DisponibilityCheckTest_Should_NotThrowException()
         {
-            _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_OK;
+            //Arrange
+            Root _root = new Root();
+            var mock = new Mock<Root>();
+            _root = mock.Object;
+            _root = JsonConvert.DeserializeObject<Root>(MockResponses.FunctionalityResponse.RESPONSE_OK);
+
+            //Act
             var disponibilityFilter = new DisponibilityFilter();
+            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheckAsync(_root); };
 
-            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheckAsync(_context); };
-
+            //Assert
             Assert.NotNull(function);
             function.Should().NotThrow<Exception>();
         }
         [Fact]
         public async Task DisponibilityCheckTest_Should_ThrowException()
         {
+            //Arrange
+            Root _root = new Root();
+            var mock = new Mock<Root>();
+            _root = mock.Object;
+            _root = JsonConvert.DeserializeObject<Root>(MockResponses.FunctionalityResponse.RESPONSE_NOT_OK);
 
-            _context.Items["functionality-response"] = MockResponses.FunctionalityResponse.RESPONSE_NOT_OK;
+            //Act
             var disponibilityFilter = new DisponibilityFilter();
+            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheckAsync(_root); };
 
-            Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheckAsync(_context); };
-
+            //Assert
             Assert.NotNull(function);
             function.Should().Throw<Exception>();
         }

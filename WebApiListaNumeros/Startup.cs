@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,6 +29,8 @@ namespace WebApiListaNumeros
 
             services.AddHttpClient();
 
+            services.AddHttpContextAccessor();
+
             services.AddSingleton<IExceptionFilter, ExceptionFilter>();
 
             services.AddSingleton<ICacheProvider, CacheProvider>();
@@ -35,6 +38,8 @@ namespace WebApiListaNumeros
             services.AddTransient<IDisponibilityFilter, DisponibilityFilter>();
 
             services.AddTransient<ISecurityFilter, SecurityFilter>();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddSwaggerGen(c =>
             {

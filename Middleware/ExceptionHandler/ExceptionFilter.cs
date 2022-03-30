@@ -10,10 +10,16 @@ using System.Threading.Tasks;
 namespace Middlewares.ExceptionHandler
 {
     public class ExceptionFilter : IExceptionFilter
-    {    
-        public async Task SetStatusCodeAsync(HttpContext context, Exception ex)
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public ExceptionFilter(IHttpContextAccessor httpContextAccessor)
         {
-            var response = context.Response;
+            _httpContextAccessor = httpContextAccessor;
+        }
+        public async Task SetStatusCodeAsync(Exception ex)
+        {
+            var response = _httpContextAccessor.HttpContext.Response;
             response.ContentType = Constant.RESPONSE_CONTENT_TYPE;
 
             switch (ex)
@@ -46,7 +52,7 @@ namespace Middlewares.ExceptionHandler
                 StatusCode = response.StatusCode,
                 ErrorMessage = ex.Message
             });
-            await context.Response.WriteAsync(result);
+            await _httpContextAccessor.HttpContext.Response.WriteAsync(result);
         }
     }
 }

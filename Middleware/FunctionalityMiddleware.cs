@@ -19,7 +19,7 @@ namespace Middlewares
         {
             try
             {
-                await _cacheProvider.FunctionalityCheckAsync(context);
+                await _cacheProvider.FunctionalityCheckAsync();
 
                 await _next.Invoke(context);
             }

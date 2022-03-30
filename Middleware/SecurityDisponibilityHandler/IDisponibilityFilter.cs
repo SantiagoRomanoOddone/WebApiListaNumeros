@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Tasks;
 using Middlewares.Models;
-using System.Threading.Tasks;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
     public interface IDisponibilityFilter
     {
-        Task DisponibilityCheckAsync(HttpContext context);
+        Task DisponibilityCheckAsync(Root response);
     }
 }

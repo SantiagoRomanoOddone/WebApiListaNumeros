@@ -13,54 +13,57 @@ using Newtonsoft.Json;
 namespace Middlewares.FunctionalityHandler
 {
     public class CacheProvider : ICacheProvider
-    {
+    {          
         private string cacheKeyName;
         private string cacheKeyTime;
         private readonly IMemoryCache _memoryCache;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private static readonly SemaphoreSlim GetResponseSemaphore = new SemaphoreSlim(1, 1);
-        public CacheProvider(IHttpClientFactory clientFactory, IMemoryCache memoryCache)
+
+        public CacheProvider(IHttpClientFactory clientFactory, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor)
         {
             _clientFactory = clientFactory;
             _memoryCache = memoryCache;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task FunctionalityCheckAsync(HttpContext context)
+        public async Task FunctionalityCheckAsync()
         {
             await GetResponseSemaphore.WaitAsync();
 
-            var CurrentDateTime = DateTime.Now;           
-            await GetCacheKey(context);        
-            
+            var CurrentDateTime = DateTime.Now;
+            await GetCacheKey();
             bool isAvailable = _memoryCache.TryGetValue(cacheKeyTime, out DateTime cacheValue);
             if (isAvailable && CurrentDateTime < cacheValue + Convert.ToDateTime(Constant.CACHE_REFRESH_TIME).TimeOfDay)
             {
-                await GetCacheResponseAsync(context);
+                await GetCacheResponseAsync();
             }
             else
             {
-                await GetFunctionalityResponseAsync(context, isAvailable);
-                await SetCacheResponseAsync(CurrentDateTime, context);
+                await GetFunctionalityResponseAsync(isAvailable);
+                await SetCacheResponseAsync(CurrentDateTime);
             }
-            GetResponseSemaphore.Release();                                    
+
+            GetResponseSemaphore.Release();
         }
 
-        private async Task GetCacheKey(HttpContext context)
+        private async Task GetCacheKey()
         {
-            if (context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First() == "Basic")
+            if (_httpContextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First() == "Basic")
             {
                 cacheKeyName = Constant.Basic.CHACHEKEYNAME;
                 cacheKeyTime = Constant.Basic.CHACHEKEYTIME;
             }
-            else if (context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First() == "Bearer")
+            else if (_httpContextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").First() == "Bearer")
             {
                 cacheKeyName = Constant.Bearer.CHACHEKEYNAME;
                 cacheKeyTime = Constant.Bearer.CHACHEKEYTIME;
             }
         }
-        private async Task GetFunctionalityResponseAsync(HttpContext context, bool isAvaiable)
+        private async Task GetFunctionalityResponseAsync(bool isAvaiable)
         {
-            var treeResponse = await GetFunctionalityTreeAsync(context);
+            var treeResponse = await GetFunctionalityTreeAsync();
 
             if (!treeResponse.IsSuccessStatusCode && isAvaiable == false)
             {
@@ -68,39 +71,38 @@ namespace Middlewares.FunctionalityHandler
             }
             if (!treeResponse.IsSuccessStatusCode)
             {
-                await GetCacheResponseAsync(context);
+                await GetCacheResponseAsync();
             }
             else
             {
                 var responseBody = await treeResponse.Content.ReadAsStringAsync();
-                context.Items.Add("functionality-response", responseBody);               
+                _httpContextAccessor.HttpContext.Items.Add("functionality-response", responseBody);
             }
         }
-        private async Task<HttpResponseMessage> GetFunctionalityTreeAsync(HttpContext context)
+        private async Task<HttpResponseMessage> GetFunctionalityTreeAsync()
         {
             var uri = Environment.GetEnvironmentVariable("urlMock");
             var client = _clientFactory.CreateClient();
             var request = new HttpRequestMessage
             (
             HttpMethod.Get,
-            $"{uri}channel={context.Request.Headers["Channel"]}&method={context.Request.Method}&endpoint={context.Request.Path}");
+            $"{uri}channel={_httpContextAccessor.HttpContext.Request.Headers["Channel"]}&method={_httpContextAccessor.HttpContext.Request.Method}&endpoint={_httpContextAccessor.HttpContext.Request.Path}");
             var response = await client.SendAsync(request);
             return response;
         }
-        private async Task SetCacheResponseAsync(DateTime CurrentDateTime, HttpContext context)
+        private async Task SetCacheResponseAsync(DateTime CurrentDateTime)
         {
-            Root data = JsonConvert.DeserializeObject<Root>(context.Items["functionality-response"].ToString());
+            Root data = JsonConvert.DeserializeObject<Root>(_httpContextAccessor.HttpContext.Items["functionality-response"].ToString());
             DateTime cacheValue = CurrentDateTime;
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(DateTime.Now.AddYears(2));
             _memoryCache.Set(cacheKeyName, data, cacheEntryOptions);
             _memoryCache.Set(cacheKeyTime, cacheValue, cacheEntryOptions);
-        }       
-        private async Task GetCacheResponseAsync(HttpContext context)
+        }
+        private async Task GetCacheResponseAsync()
         {
             var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(cacheKeyName));
-            context.Items.Add("functionality-response", cachedata);
+            _httpContextAccessor.HttpContext.Items.Add("functionality-response", cachedata);
         }
-
     }
 }
