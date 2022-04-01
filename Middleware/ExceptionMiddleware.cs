@@ -21,7 +21,7 @@ namespace Middlewares
                 await _next(context);
             }
             catch (Exception ex)
-            {
+            {               
                 await _exceptionFilter.SetStatusCodeAsync(ex);               
             }
         }         

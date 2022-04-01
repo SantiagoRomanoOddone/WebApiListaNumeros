@@ -19,7 +19,7 @@ namespace XUnitTesting
         {
             _context = new DefaultHttpContext();
             _next = new Mock<RequestDelegate>();
-            _exceptionFilter = new Mock<IExceptionFilter>();        
+            _exceptionFilter = new Mock<IExceptionFilter>();     
         }
 
         [Fact]

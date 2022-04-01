@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +21,16 @@ namespace WebApiListaNumeros
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+             //PRUEB
+             //.ConfigureLogging(logging =>
+             //{
+             //    logging.ClearProviders();
+             //    logging.AddOpenTelemetry(options =>
+             //    {
+             //        options.AddProcessor(new SimpleExportProcessor<LogRecord>(new ConsoleExporter<LogRecord>(new ConsoleExporterOptions())));
+             //    });
+             //})
+                //PRUEBA
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

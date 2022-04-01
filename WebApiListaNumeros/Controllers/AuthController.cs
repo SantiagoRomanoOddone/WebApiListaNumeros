@@ -22,6 +22,6 @@ namespace WebApiListaNumeros.Controllers
             Random rnd = new Random();
             var list = rnd.Next();
             return Ok(list);
-        }
+        }      
     }
 }

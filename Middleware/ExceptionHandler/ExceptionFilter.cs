@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Middlewares.Auxiliaries;
 using Newtonsoft.Json;
@@ -12,10 +13,13 @@ namespace Middlewares.ExceptionHandler
     public class ExceptionFilter : IExceptionFilter
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger _logger;
 
-        public ExceptionFilter(IHttpContextAccessor httpContextAccessor)
+
+        public ExceptionFilter(IHttpContextAccessor httpContextAccessor, ILoggerFactory loggerFactory)
         {
             _httpContextAccessor = httpContextAccessor;
+            _logger = loggerFactory.CreateLogger<ExceptionMiddleware>();
         }
         public async Task SetStatusCodeAsync(Exception ex)
         {
@@ -47,6 +51,7 @@ namespace Middlewares.ExceptionHandler
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     break;
             }
+            _logger.LogError(ex, $"Oooops! Algo salió mal: {ex.Message}");
             var result = JsonConvert.SerializeObject(new
             {
                 StatusCode = response.StatusCode,
