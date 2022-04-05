@@ -7,12 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Middlewares.Auxiliaries;
 using Middlewares.Models;
+using System.Diagnostics;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
     public class SecurityFilter : ISecurityFilter
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private static readonly ActivitySource Activity = new("miniPOMPOM");
 
         public SecurityFilter(IHttpContextAccessor httpContextAccessor)
         {
@@ -20,13 +22,18 @@ namespace Middlewares.SecurityDisponibilityHandler
         }
         public async Task SecurityCheckAsync(Root response)
         {
-            if (response.data.config.security.scopelevel == "basic")
+            using var activity = Activity.StartActivity("In Security Filter");
+
+            switch (response.data.config.security.scopelevel)
             {
-                await BasicSecurityCheckAsync();
-            }
-            else if (response.data.config.security.scopelevel == "jwt" )
-            {
-                await BearerSecurityCheckAsync();
+                case "basic":
+                    await BasicSecurityCheckAsync();
+                    break;
+                case "jwt":
+                    await BearerSecurityCheckAsync();
+                    break;                
+                default:
+                    throw new UnauthorizedAccessException("Wrong endPoint! ");
             }
         } 
         private async Task BasicSecurityCheckAsync()
@@ -61,6 +68,7 @@ namespace Middlewares.SecurityDisponibilityHandler
 
             var jwtToken = (JwtSecurityToken)validatedToken;
             var accountId = jwtToken.Claims.First(x => x.Type == "id").Value;
+
         }
     }
 }

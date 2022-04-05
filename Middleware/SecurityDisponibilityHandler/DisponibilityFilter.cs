@@ -1,15 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
-using Middlewares.Models;
-using Newtonsoft.Json;
+﻿using Middlewares.Models;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
     public class DisponibilityFilter : IDisponibilityFilter
     {
+        private static readonly ActivitySource Activity = new("miniPOMPOM");
+
         public async Task DisponibilityCheckAsync(Root response)
         {
+            using var activity = Activity.StartActivity("In Disponibility Filter");
+
             string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);
             TimeSpan now = DateTime.Now.TimeOfDay;
             Include include = response.data.availability.business_hours.includes.Find(x => x.weekday == day);

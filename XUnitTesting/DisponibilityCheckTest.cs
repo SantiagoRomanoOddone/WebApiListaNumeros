@@ -1,13 +1,9 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Middlewares.Models;
 using Middlewares.SecurityDisponibilityHandler;
 using Moq;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using XUnitTesting.Responses;

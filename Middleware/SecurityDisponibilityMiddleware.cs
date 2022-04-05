@@ -3,6 +3,7 @@ using Middlewares.Models;
 using Middlewares.SecurityDisponibilityHandler;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Middlewares
@@ -24,7 +25,7 @@ namespace Middlewares
         public async Task InvokeAsync(HttpContext context)
         {
             try
-            {
+            {               
                 Root response = JsonConvert.DeserializeObject<Root>(_httpContextAccessor.HttpContext.Items["functionality-response"].ToString());
                 await Task.WhenAll(
                    Task.Run(() => _disponibilityFilter.DisponibilityCheckAsync(response)),

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Middlewares.Auxiliaries;
 using Middlewares.Models;
 using Newtonsoft.Json;
+using OpenTelemetry;
 
 namespace Middlewares.FunctionalityHandler
 {
@@ -20,6 +22,8 @@ namespace Middlewares.FunctionalityHandler
         private readonly IHttpClientFactory _clientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private static readonly SemaphoreSlim GetResponseSemaphore = new SemaphoreSlim(1, 1);
+        private static readonly ActivitySource Activity = new("miniPOMPOM");
+
 
         public CacheProvider(IHttpClientFactory clientFactory, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor)
         {
@@ -31,6 +35,15 @@ namespace Middlewares.FunctionalityHandler
         public async Task FunctionalityCheckAsync()
         {
             await GetResponseSemaphore.WaitAsync();
+
+            using var activity = Activity.StartActivity("In Functionality Filter");
+            // p
+
+           
+            //var act = _httpContextAccessor.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
+
+            //Baggage.Current.SetBaggage("ExampleItem", "The information");
+            // p
 
             var CurrentDateTime = DateTime.Now;
             await GetCacheKey();
@@ -63,6 +76,7 @@ namespace Middlewares.FunctionalityHandler
         }
         private async Task GetFunctionalityResponseAsync(bool isAvaiable)
         {
+            //using var activity = source.StartActivity("Get MockService Response");
             var treeResponse = await GetFunctionalityTreeAsync();
 
             if (!treeResponse.IsSuccessStatusCode && isAvaiable == false)
@@ -81,6 +95,14 @@ namespace Middlewares.FunctionalityHandler
         }
         private async Task<HttpResponseMessage> GetFunctionalityTreeAsync()
         {
+            using var activity = Activity.StartActivity("In Mock Service GET method");
+            //p
+            //var infoFromContext = Baggage.Current.GetBaggage("ExampleItem");
+
+            //using var source = new ActivitySource("MockResponse");
+            //activity?.SetTag("InfoMockServiceReceived", infoFromContext);
+
+            //p
             var uri = Environment.GetEnvironmentVariable("urlMock");
             var client = _clientFactory.CreateClient();
             var request = new HttpRequestMessage
@@ -104,5 +126,10 @@ namespace Middlewares.FunctionalityHandler
             var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(cacheKeyName));
             _httpContextAccessor.HttpContext.Items.Add("functionality-response", cachedata);
         }
+    }
+
+    internal interface IHttpActivityFeature
+    {
+       
     }
 }

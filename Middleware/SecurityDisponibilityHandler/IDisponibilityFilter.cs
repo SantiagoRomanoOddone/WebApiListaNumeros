@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Middlewares.Models;
 
 namespace Middlewares.SecurityDisponibilityHandler

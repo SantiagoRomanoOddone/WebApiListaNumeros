@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using Jaeger;
 using Jaeger.Samplers;
@@ -20,6 +21,8 @@ using Middlewares.SecurityDisponibilityHandler;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Telemetry;
+using WebApiListaNumeros.Controllers;
 //using OpenTracing;
 //using OpenTracing.Util;
 
@@ -34,7 +37,7 @@ namespace WebApiListaNumeros
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
-        {          
+        {
             services.AddMemoryCache();
 
             services.AddControllers();
@@ -77,32 +80,33 @@ namespace WebApiListaNumeros
 
             #endregion
 
-            #region Open Telemetry
+            #region OpenTelemetry Tracing
+
             services.AddOpenTelemetryTracing(
             builder =>
             {
                 builder
-                    .AddSource(nameof(CacheProvider.FunctionalityCheckAsync))
+                    .AddSource("miniPOMPOM")
                     .AddHttpClientInstrumentation()
                     .SetResourceBuilder(ResourceBuilder
                         .CreateDefault()
-                        .AddService(Assembly.GetEntryAssembly().GetName().Name))                   
+                        .AddService(Assembly.GetEntryAssembly().GetName().Name))
                     .AddAspNetCoreInstrumentation(
                     options =>
                     {
-                        options.Enrich = Enrich;
+                        options.Enrich = DataInfo.Enrich;
                         options.RecordException = true;
-                    }
-                    )
-                    .AddOtlpExporter(options => options.Endpoint = new Uri(Environment.GetEnvironmentVariable("Jaeger")));
+                    })
+                    .AddJaegerExporter();
             });
             #endregion
-
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApiListaNumeros", Version = "v1" });
             });
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -129,60 +133,12 @@ namespace WebApiListaNumeros
 
             app.UseMiddleware<SecurityDisponibilityMiddleware>();
 
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
         }
-
-        private static void Enrich(Activity activity, string eventName, object obj)
-        {
-            if (obj is HttpRequest request)
-            {
-                var context = request.HttpContext;
-                activity.AddTag("http.flavor", GetHttpFlavour(request.Protocol));
-                activity.AddTag("http.scheme", request.Scheme);
-                activity.AddTag("http.client_ip", context.Connection.RemoteIpAddress);
-                activity.AddTag("http.request_content_length", request.ContentLength);
-                activity.AddTag("http.request_content_type", request.ContentType);
-
-                var user = context.User;
-                if (user.Identity?.Name is not null)
-                {
-                    activity.AddTag("enduser.id", user.Identity.Name);
-                    activity.AddTag(
-                        "enduser.scope",
-                        string.Join(',', user.Claims.Select(x => x.Value)));
-                }
-            }
-            else if (obj is HttpResponse response)
-            {
-                activity.AddTag("http.response_content_length", response.ContentLength);
-                activity.AddTag("http.response_content_type", response.ContentType);
-            }
-        }
-        public static string GetHttpFlavour(string protocol)
-        {
-            if (HttpProtocol.IsHttp10(protocol))
-            {
-                return "1.0";
-            }
-            else if (HttpProtocol.IsHttp11(protocol))
-            {
-                return "1.1";
-            }
-            else if (HttpProtocol.IsHttp2(protocol))
-            {
-                return "2.0";
-            }
-            else if (HttpProtocol.IsHttp3(protocol))
-            {
-                return "3.0";
-            }
-
-            throw new InvalidOperationException($"Protocol {protocol} not recognised.");
-        }
-
 
     }
 }

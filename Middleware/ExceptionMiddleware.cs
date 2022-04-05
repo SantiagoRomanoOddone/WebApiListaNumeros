@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Middlewares
@@ -15,7 +16,7 @@ namespace Middlewares
             _exceptionFilter = exceptionFilter;
         }
         public async Task InvokeAsync(HttpContext context)
-        {          
+        {
             try
             {
                 await _next(context);

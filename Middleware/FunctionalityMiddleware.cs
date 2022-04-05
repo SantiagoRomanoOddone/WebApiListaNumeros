@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Middlewares.FunctionalityHandler;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Middlewares
