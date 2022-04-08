@@ -3,21 +3,20 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Middlewares.Auxiliaries;
 using Newtonsoft.Json;
-using OpenTelemetry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
-
+using Telemetry;
 
 namespace Middlewares.ExceptionHandler
 {
     public class ExceptionFilter : IExceptionFilter
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<ExceptionFilter> _logger;
-        private static readonly ActivitySource Activity = new("miniPOMPOM");
+        private readonly ILogger _logger;
+        private static readonly ActivitySource Activity = new(Constant.OPENTELEMETRY_SOURCE);
 
         public ExceptionFilter(IHttpContextAccessor httpContextAccessor, ILogger<ExceptionFilter> logger)
         {
@@ -27,6 +26,7 @@ namespace Middlewares.ExceptionHandler
         public async Task SetStatusCodeAsync(Exception ex)
         {            
             using var activity = Activity.StartActivity("In Exception Filter");
+            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
 
             var response = _httpContextAccessor.HttpContext.Response;
             response.ContentType = Constant.RESPONSE_CONTENT_TYPE;

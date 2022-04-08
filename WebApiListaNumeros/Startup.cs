@@ -1,11 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using Jaeger;
-using Jaeger.Samplers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,16 +8,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Middlewares;
+using Middlewares.Auxiliaries;
 using Middlewares.ExceptionHandler;
 using Middlewares.FunctionalityHandler;
 using Middlewares.SecurityDisponibilityHandler;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Telemetry;
-using WebApiListaNumeros.Controllers;
-//using OpenTracing;
-//using OpenTracing.Util;
 
 namespace WebApiListaNumeros
 {
@@ -81,12 +71,11 @@ namespace WebApiListaNumeros
             #endregion
 
             #region OpenTelemetry Tracing
-
             services.AddOpenTelemetryTracing(
             builder =>
             {
                 builder
-                    .AddSource("miniPOMPOM")
+                    .AddSource(Constant.OPENTELEMETRY_SOURCE)
                     .AddHttpClientInstrumentation()
                     .SetResourceBuilder(ResourceBuilder
                         .CreateDefault()
@@ -101,11 +90,20 @@ namespace WebApiListaNumeros
             });
             #endregion
 
+            #region RequestResponseLogging
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddDebug();
+                loggingBuilder.AddEventSourceLogger();
+            });
+            #endregion
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApiListaNumeros", Version = "v1" });
             });
-
             
         }
 
@@ -127,12 +125,14 @@ namespace WebApiListaNumeros
           
             app.UseAuthorization();
 
+
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+
             app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseMiddleware<FunctionalityMiddleware>();
 
             app.UseMiddleware<SecurityDisponibilityMiddleware>();
-
 
             app.UseEndpoints(endpoints =>
             {

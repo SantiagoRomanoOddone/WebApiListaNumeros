@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -8,12 +9,23 @@ namespace WebApiListaNumeros.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        // Prueba Logging 
+        private readonly ILogger _logger;
+
+        public AuthController (ILogger<AuthController> logger)
+        {
+            _logger = logger;
+        }
+        // 
+
         [HttpGet("basic/list")]
         public async Task<IActionResult> GetBasic()
-        {
+        {     
             Random rnd = new Random();
             var list = rnd.Next();
+            _logger.LogInformation($"Start: Getting Basic User Information: {list}");
             return Ok(list);
+            
         }
 
         [HttpGet("jwt/list")]
@@ -21,6 +33,7 @@ namespace WebApiListaNumeros.Controllers
         {
             Random rnd = new Random();
             var list = rnd.Next();
+            _logger.LogInformation($"Start: Getting Bearer User Information: {list}");
             return Ok(list);
         }      
     }

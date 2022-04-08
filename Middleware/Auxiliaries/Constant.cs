@@ -6,6 +6,7 @@ namespace Middlewares.Auxiliaries
         
         public const string ISSUER = "https://localhost:44393";
         public const string AUDIENCE = "https://localhost:44388";
+        public const string OPENTELEMETRY_SOURCE = "miniPOMPOM";
 
         public const string RESPONSE_CONTENT_TYPE = "application/json";
 

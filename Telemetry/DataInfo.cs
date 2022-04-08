@@ -7,8 +7,9 @@ namespace Telemetry
 {
     public static class DataInfo
     {
-        public static void Enrich(Activity activity, string eventName , object obj)
+        public static void Enrich(Activity activity, string eventName, object obj)
         {
+           
             if (obj is HttpRequest request)
             {
                 var context = request.HttpContext;
@@ -32,6 +33,7 @@ namespace Telemetry
                 activity.AddTag("http.response_content_length", response.ContentLength);
                 activity.AddTag("http.response_content_type", response.ContentType);
             }
+
         }
         public static string GetHttpFlavour(string protocol)
         {

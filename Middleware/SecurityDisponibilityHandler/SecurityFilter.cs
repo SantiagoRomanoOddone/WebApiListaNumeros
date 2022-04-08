@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 using Middlewares.Auxiliaries;
 using Middlewares.Models;
 using System.Diagnostics;
+using Telemetry;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
     public class SecurityFilter : ISecurityFilter
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private static readonly ActivitySource Activity = new("miniPOMPOM");
+        private static readonly ActivitySource Activity = new(Constant.OPENTELEMETRY_SOURCE);
 
         public SecurityFilter(IHttpContextAccessor httpContextAccessor)
         {
@@ -23,6 +24,7 @@ namespace Middlewares.SecurityDisponibilityHandler
         public async Task SecurityCheckAsync(Root response)
         {
             using var activity = Activity.StartActivity("In Security Filter");
+            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
 
             switch (response.data.config.security.scopelevel)
             {

@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Middlewares.Models;
 using Middlewares.SecurityDisponibilityHandler;
 using Moq;
@@ -12,6 +13,14 @@ namespace XUnitTesting
 {
     public class DisponibilityCheckTest
     {
+        DefaultHttpContext _context;
+        Mock<IHttpContextAccessor> _httpContextAccessor;
+
+        public DisponibilityCheckTest()
+        {
+            _context = new DefaultHttpContext();
+            _httpContextAccessor = new Mock<IHttpContextAccessor>();
+        }
 
         [Fact]
         public async Task DisponibilityCheckTest_Should_NotThrowException()
@@ -21,9 +30,10 @@ namespace XUnitTesting
             var mock = new Mock<Root>();
             _root = mock.Object;
             _root = JsonConvert.DeserializeObject<Root>(MockResponses.FunctionalityResponse.RESPONSE_OK);
+            _httpContextAccessor.Setup(x => x.HttpContext).Returns(_context);
 
             //Act
-            var disponibilityFilter = new DisponibilityFilter();
+            var disponibilityFilter = new DisponibilityFilter(_httpContextAccessor.Object);
             Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheckAsync(_root); };
 
             //Assert
@@ -38,9 +48,10 @@ namespace XUnitTesting
             var mock = new Mock<Root>();
             _root = mock.Object;
             _root = JsonConvert.DeserializeObject<Root>(MockResponses.FunctionalityResponse.RESPONSE_NOT_OK);
+            _httpContextAccessor.Setup(x => x.HttpContext).Returns(_context);
 
             //Act
-            var disponibilityFilter = new DisponibilityFilter();
+            var disponibilityFilter = new DisponibilityFilter(_httpContextAccessor.Object);
             Func<Task> function = async () => { await disponibilityFilter.DisponibilityCheckAsync(_root); };
 
             //Assert

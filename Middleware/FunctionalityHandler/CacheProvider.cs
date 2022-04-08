@@ -11,6 +11,7 @@ using Middlewares.Auxiliaries;
 using Middlewares.Models;
 using Newtonsoft.Json;
 using OpenTelemetry;
+using Telemetry;
 
 namespace Middlewares.FunctionalityHandler
 {
@@ -22,8 +23,7 @@ namespace Middlewares.FunctionalityHandler
         private readonly IHttpClientFactory _clientFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private static readonly SemaphoreSlim GetResponseSemaphore = new SemaphoreSlim(1, 1);
-        private static readonly ActivitySource Activity = new("miniPOMPOM");
-
+        private static readonly ActivitySource Activity = new(Constant.OPENTELEMETRY_SOURCE);
 
         public CacheProvider(IHttpClientFactory clientFactory, IMemoryCache memoryCache, IHttpContextAccessor httpContextAccessor)
         {
@@ -36,14 +36,8 @@ namespace Middlewares.FunctionalityHandler
         {
             await GetResponseSemaphore.WaitAsync();
 
-            using var activity = Activity.StartActivity("In Functionality Filter");
-            // p
-
-           
-            //var act = _httpContextAccessor.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
-
-            //Baggage.Current.SetBaggage("ExampleItem", "The information");
-            // p
+            using var activity = Activity.StartActivity("In Functionality Filter", ActivityKind.Internal);
+            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
 
             var CurrentDateTime = DateTime.Now;
             await GetCacheKey();
@@ -57,8 +51,12 @@ namespace Middlewares.FunctionalityHandler
                 await GetFunctionalityResponseAsync(isAvailable);
                 await SetCacheResponseAsync(CurrentDateTime);
             }
-
             GetResponseSemaphore.Release();
+
+
+            // PRUEBA 
+            //await GetAsyncPRUEBA();
+
         }
 
         private async Task GetCacheKey()
@@ -76,7 +74,6 @@ namespace Middlewares.FunctionalityHandler
         }
         private async Task GetFunctionalityResponseAsync(bool isAvaiable)
         {
-            //using var activity = source.StartActivity("Get MockService Response");
             var treeResponse = await GetFunctionalityTreeAsync();
 
             if (!treeResponse.IsSuccessStatusCode && isAvaiable == false)
@@ -96,13 +93,8 @@ namespace Middlewares.FunctionalityHandler
         private async Task<HttpResponseMessage> GetFunctionalityTreeAsync()
         {
             using var activity = Activity.StartActivity("In Mock Service GET method");
-            //p
-            //var infoFromContext = Baggage.Current.GetBaggage("ExampleItem");
+            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
 
-            //using var source = new ActivitySource("MockResponse");
-            //activity?.SetTag("InfoMockServiceReceived", infoFromContext);
-
-            //p
             var uri = Environment.GetEnvironmentVariable("urlMock");
             var client = _clientFactory.CreateClient();
             var request = new HttpRequestMessage
@@ -126,10 +118,24 @@ namespace Middlewares.FunctionalityHandler
             var cachedata = JsonConvert.SerializeObject(_memoryCache.Get<Root>(cacheKeyName));
             _httpContextAccessor.HttpContext.Items.Add("functionality-response", cachedata);
         }
-    }
 
-    internal interface IHttpActivityFeature
-    {
-       
+        //PRUEBA
+        private async Task<HttpResponseMessage> GetAsyncPRUEBA()
+        {
+            // SETTING BAGGAGE
+
+            Baggage.Current.SetBaggage("ConnectionId", _httpContextAccessor.HttpContext.Connection.Id);
+            Baggage.Current.SetBaggage("TraceIdentifier", _httpContextAccessor.HttpContext.TraceIdentifier);
+            //
+
+            var uri = "https://localhost:44393/v1/minipompom/jwt/GetResult";
+            var client = _clientFactory.CreateClient();
+            var request = new HttpRequestMessage
+            (
+            HttpMethod.Get,
+            uri);
+            var response = await client.SendAsync(request);
+            return response;
+        }
     }
 }

@@ -1,17 +1,28 @@
-﻿using Middlewares.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Middlewares.Auxiliaries;
+using Middlewares.Models;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Telemetry;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
     public class DisponibilityFilter : IDisponibilityFilter
     {
-        private static readonly ActivitySource Activity = new("miniPOMPOM");
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private static readonly ActivitySource Activity = new(Constant.OPENTELEMETRY_SOURCE);
+
+        public DisponibilityFilter(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
 
         public async Task DisponibilityCheckAsync(Root response)
         {
+
             using var activity = Activity.StartActivity("In Disponibility Filter");
+            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
 
             string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);
             TimeSpan now = DateTime.Now.TimeOfDay;
