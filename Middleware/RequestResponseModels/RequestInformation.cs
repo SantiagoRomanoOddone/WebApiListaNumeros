@@ -16,6 +16,5 @@ namespace Middlewares.RequestResponseModels
         public string http_request_headers { get; set; }
         public string http_request_body { get; set; }
         public string http_request_query_string { get; set; }
-
     }
 }

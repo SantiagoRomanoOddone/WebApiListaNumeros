@@ -37,7 +37,6 @@ namespace Middlewares
             await using var requestStream = _recyclableMemoryStreamManager.GetStream();
             await context.Request.Body.CopyToAsync(requestStream);       
 
-
             using (_logger.BeginScope("Scope: HTTP Request"))
             {
                 var requestInformation = await GetRequestInformation(context, requestStream);
@@ -68,7 +67,6 @@ namespace Middlewares
             }
             await responseBody.CopyToAsync(originalBodyStream);
         }
-
         private static string ReadStreamInChunks(Stream stream)
         {
             const int readChunkBufferLength = 4096;
@@ -86,7 +84,6 @@ namespace Middlewares
             } while (readChunkLength > 0);
             return textWriter.ToString();
         }
-
         private static string GetAllRequestHeaders(HttpContext context)
         {
             Dictionary<string, string> requestHeaders = new Dictionary<string, string>();
@@ -96,7 +93,6 @@ namespace Middlewares
             }
             return JsonConvert.SerializeObject(requestHeaders);      
         }
-
         private static string GetAllResponseHeaders(HttpContext context)
         {
             Dictionary<string, string> responseHeaders = new Dictionary<string, string>();
@@ -106,8 +102,7 @@ namespace Middlewares
             }
             return JsonConvert.SerializeObject(responseHeaders);
         }
-
-        private async Task<string> GetRequestInformation(HttpContext context, Stream requestStream)
+        private static async Task<string> GetRequestInformation(HttpContext context, Stream requestStream)
         {
 
             var requestInformation = new RequestInformation
@@ -125,7 +120,7 @@ namespace Middlewares
 
             return requestInfo;
         }
-        private async Task<string> GetResponseInformation(HttpContext context, string text)
+        private static async Task<string> GetResponseInformation(HttpContext context, string text)
         {
 
             var responseInformation = new ResponseInformation
