@@ -102,7 +102,7 @@ namespace Middlewares
             }
             return JsonConvert.SerializeObject(responseHeaders);
         }
-        private static async Task<string> GetRequestInformation(HttpContext context, Stream requestStream)
+        private async Task<string> GetRequestInformation(HttpContext context, Stream requestStream)
         {
 
             var requestInformation = new RequestInformation
@@ -120,7 +120,7 @@ namespace Middlewares
 
             return requestInfo;
         }
-        private static async Task<string> GetResponseInformation(HttpContext context, string text)
+        private async Task<string> GetResponseInformation(HttpContext context, string text)
         {
 
             var responseInformation = new ResponseInformation
