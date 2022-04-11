@@ -9,14 +9,12 @@ namespace WebApiListaNumeros.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        // Prueba Logging 
         private readonly ILogger _logger;
 
         public AuthController (ILogger<AuthController> logger)
         {
             _logger = logger;
         }
-        // 
 
         [HttpGet("basic/list")]
         public async Task<IActionResult> GetBasic()

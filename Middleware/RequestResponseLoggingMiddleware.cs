@@ -45,7 +45,6 @@ namespace Middlewares
                  
             }
             context.Request.Body.Position = 0;
-
         }
         private async Task LogResponse(HttpContext context) 
         {
