@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using Middlewares.Auxiliaries;
 using Middlewares.RequestResponseModels;
 using Newtonsoft.Json;
 using OpenTelemetry;
@@ -26,7 +27,7 @@ namespace Middlewares
         }
         public async Task Invoke(HttpContext context)
         {
-            Baggage.Current.SetBaggage("traceId", context.TraceIdentifier);
+            Baggage.Current.SetBaggage(Constant.TRACE_ID_BAGGAGE, context.TraceIdentifier);
             await LogRequest(context);
             await LogResponse(context);
         }
@@ -106,7 +107,7 @@ namespace Middlewares
 
             var requestInformation = new RequestInformation
             {
-                traceId = Baggage.Current.GetBaggage("TraceId"),
+                traceId = Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE),
                 http_schema = context.Request.Scheme,
                 http_host = (context.Request.Host).ToString(),
                 http_request_path = context.Request.Path,
@@ -124,7 +125,7 @@ namespace Middlewares
 
             var responseInformation = new ResponseInformation
             {
-                traceId = Baggage.Current.GetBaggage("TraceId"),
+                traceId = Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE),
                 http_response_body = JsonConvert.SerializeObject(text),
                 http_response_headers = GetAllResponseHeaders(context),
                 http_response_status_code = (context.Response.StatusCode).ToString()

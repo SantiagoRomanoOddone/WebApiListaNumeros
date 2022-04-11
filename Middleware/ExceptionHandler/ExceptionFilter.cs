@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Middlewares.Auxiliaries;
 using Newtonsoft.Json;
+using OpenTelemetry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +27,7 @@ namespace Middlewares.ExceptionHandler
         public async Task SetStatusCodeAsync(Exception ex)
         {            
             using var activity = Activity.StartActivity("In Exception Filter");
-            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
+            activity?.SetTag(Constant.TRACE_ID_BAGGAGE, Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE));
 
             var response = _httpContextAccessor.HttpContext.Response;
             response.ContentType = Constant.RESPONSE_CONTENT_TYPE;

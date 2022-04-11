@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Middlewares.Auxiliaries;
 using Middlewares.Models;
+using OpenTelemetry;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -10,19 +11,13 @@ namespace Middlewares.SecurityDisponibilityHandler
 {
     public class DisponibilityFilter : IDisponibilityFilter
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private static readonly ActivitySource Activity = new(Constant.OPENTELEMETRY_SOURCE);
-
-        public DisponibilityFilter(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
 
         public async Task DisponibilityCheckAsync(Root response)
         {
 
             using var activity = Activity.StartActivity("In Disponibility Filter");
-            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
+            activity?.SetTag(Constant.TRACE_ID_BAGGAGE, Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE));
 
             string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);
             TimeSpan now = DateTime.Now.TimeOfDay;

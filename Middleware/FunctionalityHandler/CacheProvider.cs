@@ -37,7 +37,7 @@ namespace Middlewares.FunctionalityHandler
             await GetResponseSemaphore.WaitAsync();
 
             using var activity = Activity.StartActivity("In Functionality Filter", ActivityKind.Internal);
-            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
+            activity?.SetTag(Constant.TRACE_ID_BAGGAGE, Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE));
 
             var CurrentDateTime = DateTime.Now;
             await GetCacheKey();
@@ -53,9 +53,6 @@ namespace Middlewares.FunctionalityHandler
             }
             GetResponseSemaphore.Release();
 
-
-            // PRUEBA 
-            //await GetAsyncPRUEBA();
 
         }
 
@@ -119,23 +116,5 @@ namespace Middlewares.FunctionalityHandler
             _httpContextAccessor.HttpContext.Items.Add("functionality-response", cachedata);
         }
 
-        //PRUEBA
-        private async Task<HttpResponseMessage> GetAsyncPRUEBA()
-        {
-            // SETTING BAGGAGE
-
-            Baggage.Current.SetBaggage("ConnectionId", _httpContextAccessor.HttpContext.Connection.Id);
-            Baggage.Current.SetBaggage("TraceIdentifier", _httpContextAccessor.HttpContext.TraceIdentifier);
-            //
-
-            var uri = "https://localhost:44393/v1/minipompom/jwt/GetResult";
-            var client = _clientFactory.CreateClient();
-            var request = new HttpRequestMessage
-            (
-            HttpMethod.Get,
-            uri);
-            var response = await client.SendAsync(request);
-            return response;
-        }
     }
 }

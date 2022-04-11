@@ -12,6 +12,8 @@ namespace Middlewares.Auxiliaries
 
         public const string CACHE_REFRESH_TIME = "00:10";
 
+        public const string TRACE_ID_BAGGAGE = "traceId";
+
         public static class Bearer
         {
             public const string KEY = "SecretKeywqewqeqqqqqqqqqqqweeeeeeeeeeeeeeeeeeeqweqe";

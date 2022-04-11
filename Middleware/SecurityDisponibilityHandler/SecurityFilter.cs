@@ -9,6 +9,7 @@ using Middlewares.Auxiliaries;
 using Middlewares.Models;
 using System.Diagnostics;
 using Telemetry;
+using OpenTelemetry;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
@@ -24,7 +25,7 @@ namespace Middlewares.SecurityDisponibilityHandler
         public async Task SecurityCheckAsync(Root response)
         {
             using var activity = Activity.StartActivity("In Security Filter");
-            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
+            activity?.SetTag(Constant.TRACE_ID_BAGGAGE, Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE));
 
             switch (response.data.config.security.scopelevel)
             {
