@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using Middlewares.RequestResponseModels;
 using Newtonsoft.Json;
+using OpenTelemetry;
 
 namespace Middlewares
 {
@@ -26,6 +26,7 @@ namespace Middlewares
         }
         public async Task Invoke(HttpContext context)
         {
+            Baggage.Current.SetBaggage("traceId", context.TraceIdentifier);
             await LogRequest(context);
             await LogResponse(context);
         }
@@ -34,18 +35,15 @@ namespace Middlewares
         {
             context.Request.EnableBuffering();
             await using var requestStream = _recyclableMemoryStreamManager.GetStream();
-            await context.Request.Body.CopyToAsync(requestStream);
+            await context.Request.Body.CopyToAsync(requestStream);       
+
 
             using (_logger.BeginScope("Scope: HTTP Request"))
             {
-                _logger.LogInformation($"Http Request Information:{Environment.NewLine}" +                                       
-                                       $"http_schema:{context.Request.Scheme} " +
-                                       $"http_host: {context.Request.Host} " +
-                                       $"http_request_path: {context.Request.Path} " +
-                                       $"http_request_method: {context.Request.Method} " +
-                                       $"http_request_headers: {GetAllRequestHeaders(context)} " +
-                                       $"http_request_body: {ReadStreamInChunks(requestStream)} " +
-                                       $"http_request_query_string: {context.Request.QueryString} ");
+                var requestInformation = await GetRequestInformation(context, requestStream);
+                _logger.LogInformation($"Http Request Information:{Environment.NewLine} " +
+                                        $"{ requestInformation}");
+                 
             }
             context.Request.Body.Position = 0;
 
@@ -63,10 +61,9 @@ namespace Middlewares
                 var text = await new StreamReader(context.Response.Body).ReadToEndAsync();
                 context.Response.Body.Seek(0, SeekOrigin.Begin);
 
-                _logger.LogInformation($"Http Response Information:{Environment.NewLine}" +
-                                       $"http_response_body: {text} " +
-                                       $"http_response_headers: {GetAllResponseHeaders(context)} " +
-                                       $"http_response_status_code: {context.Response.StatusCode} ");
+                var responseInformation = await GetResponseInformation(context, text);
+                _logger.LogInformation($"Http Response Information:{Environment.NewLine} " +
+                                        $"{ responseInformation}");
 
             }
             await responseBody.CopyToAsync(originalBodyStream);
@@ -108,6 +105,39 @@ namespace Middlewares
                 responseHeaders.Add(header.Key, header.Value);
             }
             return JsonConvert.SerializeObject(responseHeaders);
+        }
+
+        private async Task<string> GetRequestInformation(HttpContext context, Stream requestStream)
+        {
+
+            var requestInformation = new RequestInformation
+            {
+                traceId = Baggage.Current.GetBaggage("TraceId"),
+                http_schema = context.Request.Scheme,
+                http_host = (context.Request.Host).ToString(),
+                http_request_path = context.Request.Path,
+                http_request_method = context.Request.Method,
+                http_request_headers = GetAllRequestHeaders(context),
+                http_request_query_string = (context.Request.QueryString).ToString(),
+                http_request_body = (ReadStreamInChunks(requestStream))
+            };
+            string requestInfo = JsonConvert.SerializeObject(requestInformation);
+
+            return requestInfo;
+        }
+        private async Task<string> GetResponseInformation(HttpContext context, string text)
+        {
+
+            var responseInformation = new ResponseInformation
+            {
+                traceId = Baggage.Current.GetBaggage("TraceId"),
+                http_response_body = JsonConvert.SerializeObject(text),
+                http_response_headers = GetAllResponseHeaders(context),
+                http_response_status_code = (context.Response.StatusCode).ToString()
+            };
+            string responseInfo = JsonConvert.SerializeObject(responseInformation);
+
+            return responseInfo;
         }
     }
 }
