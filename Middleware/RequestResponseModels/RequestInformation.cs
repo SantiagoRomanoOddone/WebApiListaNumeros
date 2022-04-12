@@ -8,7 +8,7 @@ namespace Middlewares.RequestResponseModels
 {
     public class RequestInformation
     {
-        public string traceId { get; set; }
+        public string trace_Id { get; set; }
         public string http_schema { get; set; }
         public string http_host { get; set; }
         public string http_request_path { get; set; }

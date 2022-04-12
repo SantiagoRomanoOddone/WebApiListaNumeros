@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Middlewares.Auxiliaries;
 using Middlewares.Models;
 using Newtonsoft.Json;
-using OpenTelemetry;
 using Telemetry;
 
 namespace Middlewares.FunctionalityHandler
@@ -37,7 +36,7 @@ namespace Middlewares.FunctionalityHandler
             await GetResponseSemaphore.WaitAsync();
 
             using var activity = Activity.StartActivity("In Functionality Filter", ActivityKind.Internal);
-            activity?.SetTag(Constant.TRACE_ID_BAGGAGE, Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE));
+            await BaggageInfo.SetSpecificTags(activity);
 
             var CurrentDateTime = DateTime.Now;
             await GetCacheKey();
@@ -52,8 +51,6 @@ namespace Middlewares.FunctionalityHandler
                 await SetCacheResponseAsync(CurrentDateTime);
             }
             GetResponseSemaphore.Release();
-
-
         }
 
         private async Task GetCacheKey()
@@ -90,7 +87,7 @@ namespace Middlewares.FunctionalityHandler
         private async Task<HttpResponseMessage> GetFunctionalityTreeAsync()
         {
             using var activity = Activity.StartActivity("In Mock Service GET method");
-            BaggageInfo.EnrichBaggage(_httpContextAccessor, activity);
+            await BaggageInfo.SetSpecificTags(activity);
 
             var uri = Environment.GetEnvironmentVariable("urlMock");
             var client = _clientFactory.CreateClient();

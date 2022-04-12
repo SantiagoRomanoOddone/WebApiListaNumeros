@@ -17,7 +17,7 @@ namespace Middlewares.SecurityDisponibilityHandler
         {
 
             using var activity = Activity.StartActivity("In Disponibility Filter");
-            activity?.SetTag(Constant.TRACE_ID_BAGGAGE, Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE));
+            await BaggageInfo.SetSpecificTags(activity);
 
             string day = DateTime.Now.DayOfWeek.ToString().ToLower().Substring(0, 3);
             TimeSpan now = DateTime.Now.TimeOfDay;

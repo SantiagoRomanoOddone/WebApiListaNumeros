@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Middlewares.Auxiliaries;
 using Newtonsoft.Json;
-using OpenTelemetry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,9 +24,9 @@ namespace Middlewares.ExceptionHandler
             _logger = logger;
         }
         public async Task SetStatusCodeAsync(Exception ex)
-        {            
+        {
             using var activity = Activity.StartActivity("In Exception Filter");
-            activity?.SetTag(Constant.TRACE_ID_BAGGAGE, Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE));
+            await BaggageInfo.SetSpecificTags(activity);
 
             var response = _httpContextAccessor.HttpContext.Response;
             response.ContentType = Constant.RESPONSE_CONTENT_TYPE;
@@ -35,7 +34,7 @@ namespace Middlewares.ExceptionHandler
             switch (ex)
             {
                 case AppException:
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;                 
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
                     break;
                 case UnauthorizedAccessException:
                     response.StatusCode = (int)HttpStatusCode.Unauthorized;

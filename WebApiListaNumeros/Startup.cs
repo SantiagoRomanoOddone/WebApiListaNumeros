@@ -11,6 +11,7 @@ using Middlewares;
 using Middlewares.Auxiliaries;
 using Middlewares.ExceptionHandler;
 using Middlewares.FunctionalityHandler;
+using Middlewares.RequestResponseLoggingHandler;
 using Middlewares.SecurityDisponibilityHandler;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -45,6 +46,10 @@ namespace WebApiListaNumeros
             services.AddTransient<ISecurityFilter, SecurityFilter>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddSingleton<IRequestLogging, RequestLogging>();
+
+            services.AddSingleton<IResponseLogging, ResponseLogging>();
 
             #region Distributed Tracing
 

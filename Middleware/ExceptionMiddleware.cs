@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Middlewares

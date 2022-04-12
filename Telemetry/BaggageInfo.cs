@@ -1,24 +1,27 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using OpenTelemetry;
+using Telemetry.Auxiliaries;
 
 namespace Telemetry
 {   
     public class BaggageInfo
-    {    
-        public static void EnrichBaggage(IHttpContextAccessor httpContextAccessor, Activity activity)
+    {
+        public static async Task EnrichBaggage(HttpContext context, Activity activity)
         {
-            //Baggage will flow to child activities.
-            var HttpContext = httpContextAccessor.HttpContext;
-        
-            
-            Baggage.Current.SetBaggage("ConnectionId", HttpContext.Connection.Id);
-            Baggage.Current.SetBaggage("TraceIdentifier", HttpContext.TraceIdentifier);
+            SetBaggages(context);
 
+            SetSpecificTags(activity);
 
-            activity?.SetTag("ConnectionIdInfo", Baggage.Current.GetBaggage("ConnectionId"));
-            activity?.SetTag("TraceIdentifier", Baggage.Current.GetBaggage("TraceIdentifier"));
-
+        }
+        public static void SetBaggages(HttpContext context)
+        {
+            Baggage.Current.SetBaggage(Constant.TRACE_ID_BAGGAGE, context.TraceIdentifier);
+        }
+        public static async Task SetSpecificTags(Activity activity)
+        {
+            activity?.SetTag(Constant.TRACE_ID_BAGGAGE, Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE));
         }
     }
 }
