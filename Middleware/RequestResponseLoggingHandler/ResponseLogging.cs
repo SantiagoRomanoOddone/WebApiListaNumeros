@@ -28,7 +28,7 @@ namespace Middlewares.RequestResponseLoggingHandler
         public async Task LogResponse()
         {
             using var activity = Activity.StartActivity("In Response Logging");
-            await BaggageInfo.SetSpecificTags(activity);
+            BaggageInfo.SetSpecificTags(activity);
 
             _httpContextAccessor.HttpContext.Response.Body.Seek(0, SeekOrigin.Begin);
             var text = await new StreamReader(_httpContextAccessor.HttpContext.Response.Body).ReadToEndAsync();

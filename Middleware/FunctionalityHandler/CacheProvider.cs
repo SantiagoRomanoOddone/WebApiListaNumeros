@@ -36,7 +36,7 @@ namespace Middlewares.FunctionalityHandler
             await GetResponseSemaphore.WaitAsync();
 
             using var activity = Activity.StartActivity("In Functionality Filter", ActivityKind.Internal);
-            await BaggageInfo.SetSpecificTags(activity);
+            BaggageInfo.SetSpecificTags(activity);
 
             var CurrentDateTime = DateTime.Now;
             await GetCacheKey();
@@ -87,7 +87,7 @@ namespace Middlewares.FunctionalityHandler
         private async Task<HttpResponseMessage> GetFunctionalityTreeAsync()
         {
             using var activity = Activity.StartActivity("In Mock Service GET method");
-            await BaggageInfo.SetSpecificTags(activity);
+            BaggageInfo.SetSpecificTags(activity);
 
             var uri = Environment.GetEnvironmentVariable("urlMock");
             var client = _clientFactory.CreateClient();

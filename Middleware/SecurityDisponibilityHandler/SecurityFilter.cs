@@ -9,7 +9,6 @@ using Middlewares.Auxiliaries;
 using Middlewares.Models;
 using System.Diagnostics;
 using Telemetry;
-using OpenTelemetry;
 
 namespace Middlewares.SecurityDisponibilityHandler
 {
@@ -25,7 +24,7 @@ namespace Middlewares.SecurityDisponibilityHandler
         public async Task SecurityCheckAsync(Root response)
         {
             using var activity = Activity.StartActivity("In Security Filter");
-            await BaggageInfo.SetSpecificTags(activity);
+            BaggageInfo.SetSpecificTags(activity);
 
             switch (response.data.config.security.scopelevel)
             {

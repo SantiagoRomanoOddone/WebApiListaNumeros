@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -33,7 +31,7 @@ namespace Middlewares.RequestResponseLoggingHandler
         public async Task LogRequest()
         {
             using var activity = Activity.StartActivity("In Request Logging");
-            await BaggageInfo.SetSpecificTags(activity);
+            BaggageInfo.SetSpecificTags(activity);
 
             _httpContextAccessor.HttpContext.Request.EnableBuffering();
             await using var requestStream = _recyclableMemoryStreamManager.GetStream();

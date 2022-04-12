@@ -19,7 +19,7 @@ namespace Telemetry
         {
             Baggage.Current.SetBaggage(Constant.TRACE_ID_BAGGAGE, context.TraceIdentifier);
         }
-        public static async Task SetSpecificTags(Activity activity)
+        public static void SetSpecificTags(Activity activity)
         {
             activity?.SetTag(Constant.TRACE_ID_BAGGAGE, Baggage.Current.GetBaggage(Constant.TRACE_ID_BAGGAGE));
         }
