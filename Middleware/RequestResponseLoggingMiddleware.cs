@@ -41,8 +41,8 @@ namespace Middlewares
                 context.Response.Body = responseBody;
 
                 await _next(context);
-                await _responseLogging.LogResponse();
 
+                await _responseLogging.LogResponse();
                 await responseBody.CopyToAsync(originalBodyStream);
             }      
 

@@ -26,7 +26,7 @@ namespace Middlewares.ExceptionHandler
         public async Task SetStatusCodeAsync(Exception ex)
         {
             using var activity = Activity.StartActivity("In Exception Filter");
-            BaggageInfo.SetSpecificTags(activity);
+            BaggageInfo.EnrichBaggage(activity);
 
             var response = _httpContextAccessor.HttpContext.Response;
             response.ContentType = Constant.RESPONSE_CONTENT_TYPE;

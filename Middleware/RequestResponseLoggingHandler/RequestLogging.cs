@@ -31,7 +31,7 @@ namespace Middlewares.RequestResponseLoggingHandler
         public async Task LogRequest()
         {
             using var activity = Activity.StartActivity("In Request Logging");
-            BaggageInfo.SetSpecificTags(activity);
+            BaggageInfo.EnrichBaggage(activity);
 
             _httpContextAccessor.HttpContext.Request.EnableBuffering();
             await using var requestStream = _recyclableMemoryStreamManager.GetStream();

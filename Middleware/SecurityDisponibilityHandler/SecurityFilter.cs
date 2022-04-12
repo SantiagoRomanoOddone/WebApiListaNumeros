@@ -24,7 +24,7 @@ namespace Middlewares.SecurityDisponibilityHandler
         public async Task SecurityCheckAsync(Root response)
         {
             using var activity = Activity.StartActivity("In Security Filter");
-            BaggageInfo.SetSpecificTags(activity);
+            BaggageInfo.EnrichBaggage(activity);
 
             switch (response.data.config.security.scopelevel)
             {
