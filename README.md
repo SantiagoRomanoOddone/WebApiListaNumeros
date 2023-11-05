@@ -29,4 +29,3 @@ Clone the repository to your local machine.
 Install the required dependencies using the provided instructions.
 Configure the application settings as needed.
 Run the application and explore its features.
-We welcome contributions and feedback from the community. If you'd like to contribute, please follow our guidelines for submitting pull requests.
