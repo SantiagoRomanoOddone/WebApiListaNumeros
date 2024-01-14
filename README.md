@@ -13,7 +13,7 @@ Security Handler: Implements security measures to safeguard sensitive data and u
 
 Availability Handler: Ensures high availability and robustness.
 
-Key Features:
+## Key Features:
 
 User Authentication: Designed to cater to two types of customers: those who log in with a traditional username and password, and those who authenticate using specific tokens.
 
@@ -23,9 +23,3 @@ Token Generation: Leverages external security APIs to generate and manage authen
 
 Feel free to explore the codebase to learn more about the implementation and best practices. If you have any questions or suggestions, please don't hesitate to reach out.
 
-Getting Started:
-
-Clone the repository to your local machine.
-Install the required dependencies using the provided instructions.
-Configure the application settings as needed.
-Run the application and explore its features.
